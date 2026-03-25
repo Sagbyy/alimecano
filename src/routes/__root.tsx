@@ -1,11 +1,31 @@
-import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRoute,
+  redirect,
+} from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
+import { getCurrentUserFn } from '../server/auth'
 
 
 export const Route = createRootRoute({
+  beforeLoad: async ({ location }) => {
+    if (location.pathname === '/login') return {}
+
+    const user = await getCurrentUserFn()
+    if (!user) {
+      throw redirect({
+        to: '/login',
+        search: { redirect: location.href },
+      })
+    }
+
+    return { user }
+  },
   head: () => ({
     meta: [
       {
