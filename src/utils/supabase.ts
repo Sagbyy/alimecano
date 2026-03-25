@@ -1,30 +1,31 @@
-import { getCookies, setCookie } from '@tanstack/react-start/server'
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient } from "@supabase/ssr";
+import { getCookies, setCookie } from "@tanstack/react-start/server";
+import type { Database } from "../types/database.types";
 
 type CookieToSet = {
-  name: string
-  value: string
-  options?: Record<string, unknown>
-}
+	name: string;
+	value: string;
+	options?: Record<string, unknown>;
+};
 
 export function getSupabaseServerClient() {
-  return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return Object.entries(getCookies()).map(([name, value]) => ({
-            name,
-            value,
-          }))
-        },
-        setAll(cookies: CookieToSet[]) {
-          cookies.forEach((cookie) => {
-            setCookie(cookie.name, cookie.value, cookie.options)
-          })
-        },
-      },
-    },
-  )
+	return createServerClient<Database>(
+		process.env.SUPABASE_URL!,
+		process.env.SUPABASE_ANON_KEY!,
+		{
+			cookies: {
+				getAll() {
+					return Object.entries(getCookies()).map(([name, value]) => ({
+						name,
+						value,
+					}));
+				},
+				setAll(cookies: CookieToSet[]) {
+					cookies.forEach((cookie) => {
+						setCookie(cookie.name, cookie.value, cookie.options);
+					});
+				},
+			},
+		},
+	);
 }
