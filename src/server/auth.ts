@@ -17,7 +17,22 @@ export const loginFn = createServerFn({ method: 'POST' })
       password: data.password,
     })
 
-    if (error) return { ok: false, error: error.message }
+    if (error) {
+      switch (error.status) {
+        case 400:
+          return { ok: false, error: 'L\'identifiant ou le mot de passe est incorrect.' }
+        case 429:
+          return {
+            ok: false,
+            error: 'Trop de tentatives. Réessaie dans quelques instants.',
+          }
+        default:
+          return {
+            ok: false,
+            error: 'Une erreur est survenue. Réessaie.',
+          }
+      }
+    }
 
     return {
       ok: true,
