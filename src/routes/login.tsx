@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { getCurrentUserFn, loginFn } from '../server/auth'
+import { Icon } from '@iconify/react'
 
 export const Route = createFileRoute('/login')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -23,6 +24,7 @@ function Login() {
   const { redirect: redirectTo } = Route.useSearch()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -31,7 +33,7 @@ function Login() {
     [email, password, isSubmitting],
   )
 
-  async function onSubmit(e: React.SubmitEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     setIsSubmitting(true)
@@ -53,38 +55,67 @@ function Login() {
   }
 
   return (
-    <main className="mx-auto flex min-h-[70vh] w-full max-w-sm flex-col justify-center px-4">
-      <h1 className="text-2xl font-semibold">Connexion</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Connecte-toi pour accéder au site.
-      </p>
+    <main className="mx-auto flex min-h-svh w-full max-w-sm flex-col justify-center px-6 py-10">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
+        <Icon icon="mdi:wrench" className="h-7 w-7" />
+      </div>
 
-      <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+      <h1 className="mt-5 text-center text-2xl font-semibold tracking-tight">
+        AliMecano
+      </h1>
+
+      <form className="mt-8 space-y-5" onSubmit={onSubmit}>
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground" htmlFor="email">
+            E-MAIL
+          </Label>
           <Input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="toi@exemple.com"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEmail(e.target.value)
+            }
+            placeholder="Entrez votre e-mail"
+            className="h-12 rounded-xl"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Mot de passe</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <Label
+            className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground"
+            htmlFor="password"
+          >
+            MOT DE PASSE
+          </Label>
+
+          <div className="relative">
+            <Input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
+              placeholder="Entrez votre mot de passe"
+              className="h-12 rounded-xl pr-12"
+              required
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            >
+              <Icon icon={showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'} className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {error ? (
@@ -93,7 +124,11 @@ function Login() {
           </p>
         ) : null}
 
-        <Button type="submit" className="w-full" disabled={!canSubmit}>
+        <Button
+          type="submit"
+          className="h-12 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          disabled={!canSubmit}
+        >
           {isSubmitting ? 'Connexion…' : 'Se connecter'}
         </Button>
       </form>
