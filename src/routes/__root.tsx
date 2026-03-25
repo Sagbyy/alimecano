@@ -1,8 +1,6 @@
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import Footer from '../components/Footer'
-import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
 
@@ -38,9 +36,7 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
-        <Header />
         <Outlet />
-        <Footer />
         <TanStackDevtools
           config={{
             position: 'bottom-right',
