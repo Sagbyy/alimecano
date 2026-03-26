@@ -1,19 +1,19 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Button } from '../components/ui/button'
-import { logoutFn } from '../server/auth'
-import { getRooms } from '#/server/rooms'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { getRooms } from "#/server/rooms";
+import { Button } from "../components/ui/button";
+import { logoutFn } from "../server/auth";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: Home,
   loader: () => getRooms(),
-})
+});
 
 function Home() {
-  const navigate = useNavigate()
-  const { user } = Route.useRouteContext()
-  const rooms = Route.useLoaderData()
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const navigate = useNavigate();
+  const { user } = Route.useRouteContext();
+  const rooms = Route.useLoaderData();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
@@ -28,20 +28,20 @@ function Home() {
         <Button
           variant="outline"
           onClick={async () => {
-            if (isLoggingOut) return
-            setIsLoggingOut(true)
-            await logoutFn()
-            await navigate({ to: '/login', search: { redirect: '/' } })
+            if (isLoggingOut) return;
+            setIsLoggingOut(true);
+            await logoutFn();
+            await navigate({ to: "/login", search: { redirect: "/" } });
           }}
           type="button"
           disabled={isLoggingOut}
         >
-          {isLoggingOut ? 'Déconnexion…' : 'Se déconnecter'}
+          {isLoggingOut ? "Déconnexion…" : "Se déconnecter"}
         </Button>
       </div>
 
       <section className="mt-8">
-        <h2 className="text-base font-semibold">Rooms</h2>
+        <h2 className="text-base font-semibold">Mes salles</h2>
 
         {rooms == null ? (
           <p className="mt-2 text-sm text-muted-foreground">
@@ -52,16 +52,23 @@ function Home() {
         ) : (
           <ul className="mt-3 space-y-2">
             {rooms.map((room) => (
-              <li key={room.id} className="rounded-md border px-3 py-2">
-                <div className="font-medium">{room.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  #{room.id} · {new Date(room.created_at).toLocaleString()}
+              <li
+                key={room.id}
+                className="text-xs md:text-base flex items-center justify-between gap-4 rounded-xl border-2 border-gray-200 p-4"
+              >
+                <div>
+                  <p className="text-base font-semibold">{room.name}</p>
+                  <p>Armoire 1, Armoire 2, Armoire 3</p>
                 </div>
+                <p className="bg-blue-100 py-2 px-3 rounded-lg text-blue-700">
+                  {room.cabinet.map((cabinet) => cabinet.auto_part).length ||
+                    0}{" "}
+                </p>
               </li>
             ))}
           </ul>
         )}
       </section>
     </main>
-  )
+  );
 }
