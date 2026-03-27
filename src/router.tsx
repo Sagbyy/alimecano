@@ -10,6 +10,8 @@ export function getRouter() {
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
     defaultPendingComponent: InnerLoader,
+    defaultPendingMs: 0,
+    defaultPendingMinMs: 300,
   });
 
   return router;
