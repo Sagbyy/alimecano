@@ -13,7 +13,7 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "fetchTypes": "dotenv -- supabase gen types typescript --project-id rhlmikwbauvpodhcqyiz > database.types.ts"
+    "fetchTypes": "dotenv -- supabase gen types typescript --project-id rhlmikwbauvpodhcqyiz > src/types/database.types.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^10.3.0",

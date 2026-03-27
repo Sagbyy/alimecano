@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
+import { Route as AuthedSearchRouteImport } from './routes/_authed/search'
+import { Route as AuthedAddRouteImport } from './routes/_authed/add'
+import { Route as AuthedRoomsRoomIdRouteImport } from './routes/_authed/rooms/$roomId'
+import { Route as AuthedRoomsRoomIdCabinetsCabinetIdRouteImport } from './routes/_authed/rooms/$roomId/cabinets/$cabinetId'
+import { Route as AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRouteImport } from './routes/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -22,31 +28,110 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedSettingsRoute = AuthedSettingsRouteImport.update({
+  id: '/_authed/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedSearchRoute = AuthedSearchRouteImport.update({
+  id: '/_authed/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedAddRoute = AuthedAddRouteImport.update({
+  id: '/_authed/add',
+  path: '/add',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedRoomsRoomIdRoute = AuthedRoomsRoomIdRouteImport.update({
+  id: '/_authed/rooms/$roomId',
+  path: '/rooms/$roomId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedRoomsRoomIdCabinetsCabinetIdRoute =
+  AuthedRoomsRoomIdCabinetsCabinetIdRouteImport.update({
+    id: '/cabinets/$cabinetId',
+    path: '/cabinets/$cabinetId',
+    getParentRoute: () => AuthedRoomsRoomIdRoute,
+  } as any)
+const AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute =
+  AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRouteImport.update({
+    id: '/auto-parts/$autoPartId',
+    path: '/auto-parts/$autoPartId',
+    getParentRoute: () => AuthedRoomsRoomIdCabinetsCabinetIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/add': typeof AuthedAddRoute
+  '/search': typeof AuthedSearchRoute
+  '/settings': typeof AuthedSettingsRoute
+  '/rooms/$roomId': typeof AuthedRoomsRoomIdRouteWithChildren
+  '/rooms/$roomId/cabinets/$cabinetId': typeof AuthedRoomsRoomIdCabinetsCabinetIdRouteWithChildren
+  '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/add': typeof AuthedAddRoute
+  '/search': typeof AuthedSearchRoute
+  '/settings': typeof AuthedSettingsRoute
+  '/rooms/$roomId': typeof AuthedRoomsRoomIdRouteWithChildren
+  '/rooms/$roomId/cabinets/$cabinetId': typeof AuthedRoomsRoomIdCabinetsCabinetIdRouteWithChildren
+  '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/_authed/add': typeof AuthedAddRoute
+  '/_authed/search': typeof AuthedSearchRoute
+  '/_authed/settings': typeof AuthedSettingsRoute
+  '/_authed/rooms/$roomId': typeof AuthedRoomsRoomIdRouteWithChildren
+  '/_authed/rooms/$roomId/cabinets/$cabinetId': typeof AuthedRoomsRoomIdCabinetsCabinetIdRouteWithChildren
+  '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/add'
+    | '/search'
+    | '/settings'
+    | '/rooms/$roomId'
+    | '/rooms/$roomId/cabinets/$cabinetId'
+    | '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login'
-  id: '__root__' | '/' | '/login'
+  to:
+    | '/'
+    | '/login'
+    | '/add'
+    | '/search'
+    | '/settings'
+    | '/rooms/$roomId'
+    | '/rooms/$roomId/cabinets/$cabinetId'
+    | '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/_authed/add'
+    | '/_authed/search'
+    | '/_authed/settings'
+    | '/_authed/rooms/$roomId'
+    | '/_authed/rooms/$roomId/cabinets/$cabinetId'
+    | '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  AuthedAddRoute: typeof AuthedAddRoute
+  AuthedSearchRoute: typeof AuthedSearchRoute
+  AuthedSettingsRoute: typeof AuthedSettingsRoute
+  AuthedRoomsRoomIdRoute: typeof AuthedRoomsRoomIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +150,85 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/settings': {
+      id: '/_authed/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthedSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/search': {
+      id: '/_authed/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AuthedSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/add': {
+      id: '/_authed/add'
+      path: '/add'
+      fullPath: '/add'
+      preLoaderRoute: typeof AuthedAddRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/rooms/$roomId': {
+      id: '/_authed/rooms/$roomId'
+      path: '/rooms/$roomId'
+      fullPath: '/rooms/$roomId'
+      preLoaderRoute: typeof AuthedRoomsRoomIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/rooms/$roomId/cabinets/$cabinetId': {
+      id: '/_authed/rooms/$roomId/cabinets/$cabinetId'
+      path: '/cabinets/$cabinetId'
+      fullPath: '/rooms/$roomId/cabinets/$cabinetId'
+      preLoaderRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdRouteImport
+      parentRoute: typeof AuthedRoomsRoomIdRoute
+    }
+    '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': {
+      id: '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
+      path: '/auto-parts/$autoPartId'
+      fullPath: '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
+      preLoaderRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRouteImport
+      parentRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdRoute
+    }
   }
 }
+
+interface AuthedRoomsRoomIdCabinetsCabinetIdRouteChildren {
+  AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
+}
+
+const AuthedRoomsRoomIdCabinetsCabinetIdRouteChildren: AuthedRoomsRoomIdCabinetsCabinetIdRouteChildren =
+  {
+    AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute:
+      AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute,
+  }
+
+const AuthedRoomsRoomIdCabinetsCabinetIdRouteWithChildren =
+  AuthedRoomsRoomIdCabinetsCabinetIdRoute._addFileChildren(
+    AuthedRoomsRoomIdCabinetsCabinetIdRouteChildren,
+  )
+
+interface AuthedRoomsRoomIdRouteChildren {
+  AuthedRoomsRoomIdCabinetsCabinetIdRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdRouteWithChildren
+}
+
+const AuthedRoomsRoomIdRouteChildren: AuthedRoomsRoomIdRouteChildren = {
+  AuthedRoomsRoomIdCabinetsCabinetIdRoute:
+    AuthedRoomsRoomIdCabinetsCabinetIdRouteWithChildren,
+}
+
+const AuthedRoomsRoomIdRouteWithChildren =
+  AuthedRoomsRoomIdRoute._addFileChildren(AuthedRoomsRoomIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  AuthedAddRoute: AuthedAddRoute,
+  AuthedSearchRoute: AuthedSearchRoute,
+  AuthedSettingsRoute: AuthedSettingsRoute,
+  AuthedRoomsRoomIdRoute: AuthedRoomsRoomIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

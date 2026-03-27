@@ -1,8 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { getRooms } from "#/server/rooms";
-import { Button } from "../components/ui/button";
-import { logoutFn } from "../server/auth";
+import { InnerCardComponent } from "#/components/innner/card";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -10,10 +8,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const navigae = useNavigate();
-  const { user } = Route.useRouteContext();
   const rooms = Route.useLoaderData();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   return (
     <main className="page-wrap px-4 pb-8">
@@ -29,18 +24,19 @@ function Home() {
         ) : (
           <ul className="mt-3 space-y-2">
             {rooms.map((room) => (
-              <li
-                key={room.id}
-                className="text-xs md:text-base flex items-center justify-between gap-4 rounded-xl border-2 border-gray-200 p-4"
-              >
-                <div>
-                  <p className="text-base font-semibold">{room.name}</p>
-                  <p>Armoire 1, Armoire 2, Armoire 3</p>
-                </div>
-                <p className="bg-blue-100 py-2 px-3 rounded-lg text-blue-700">
-                  {room.cabinet.map((cabinet) => cabinet.auto_part).length ||
-                    0}{" "}
-                </p>
+              <li key={room.id}>
+                <Link
+                  to="/rooms/$roomId"
+                  params={{ roomId: room.id.toString() }}
+                >
+                  <InnerCardComponent
+                    title={room.name}
+                    description={room.description}
+                    count={
+                      room.cabinet.map((cabinet) => cabinet.auto_part).length
+                    }
+                  />
+                </Link>
               </li>
             ))}
           </ul>
