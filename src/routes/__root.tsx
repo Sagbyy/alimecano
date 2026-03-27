@@ -86,7 +86,7 @@ function RootDocument() {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-[#fafbfc]">
+      <body className="bg-white">
         <div className={showBottomNav ? "pb-24" : undefined}>
           <Outlet />
         </div>

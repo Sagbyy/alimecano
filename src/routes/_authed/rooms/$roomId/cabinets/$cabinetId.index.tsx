@@ -32,7 +32,7 @@ function RouteComponent() {
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <InnerBack to="/rooms/$roomId/" params={{ roomId }} />
+        <InnerBack to="/rooms/$roomId/" params={{ roomId }} actionIcon="mdi:plus" />
 
         <Breadcrumb className="mt-4">
           <BreadcrumbList>

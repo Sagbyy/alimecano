@@ -30,7 +30,7 @@ function RouteComponent() {
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <InnerBack to="/" />
+        <InnerBack to="/" actionIcon="mdi:plus" />
 
         <Breadcrumb className="mt-4">
           <BreadcrumbList>
