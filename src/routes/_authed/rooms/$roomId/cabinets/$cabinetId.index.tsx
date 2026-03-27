@@ -42,7 +42,7 @@ function RouteComponent() {
                   <InnerCard
                     title={autoPart.name}
                     description={autoPart.description}
-                    count={autoPart.auto_part.length}
+                    count={0}
                   />
                 </Link>
               </li>
