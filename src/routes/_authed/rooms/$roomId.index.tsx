@@ -27,6 +27,11 @@ function RouteComponent() {
     `${c.name} ${c.description}`.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const totalParts = cabinets?.reduce(
+    (sum, c) => sum + (c.auto_part[0]?.count ?? 0),
+    0,
+  ) ?? 0;
+
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
@@ -46,7 +51,10 @@ function RouteComponent() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <h2 className="text-base font-semibold mt-4">Mes armoires</h2>
+        <div className="mt-4">
+          <h2 className="text-base font-semibold">Mes armoires</h2>
+          <p className="text-xs text-neutral-400">{totalParts} pièce{totalParts > 1 ? "s" : ""} au total</p>
+        </div>
 
         <div className="relative mt-3">
           <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
@@ -76,7 +84,7 @@ function RouteComponent() {
                   <InnerCard
                     title={cabinet.name}
                     description={cabinet.description}
-                    count={cabinet.auto_part.length}
+                    count={cabinet.auto_part[0]?.count ?? 0}
                   />
                 </Link>
               </li>

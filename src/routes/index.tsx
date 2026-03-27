@@ -11,11 +11,20 @@ export const Route = createFileRoute("/")({
 function Home() {
   const rooms = Route.useLoaderData();
 
+  const totalParts = rooms?.reduce(
+    (sum, room) =>
+      sum + room.cabinet.reduce((s, c) => s + (c.auto_part[0]?.count ?? 0), 0),
+    0,
+  ) ?? 0;
+
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Mes salles</h2>
+          <div>
+            <h2 className="text-base font-semibold">Mes salles</h2>
+            <p className="text-xs text-neutral-400">{totalParts} pièce{totalParts > 1 ? "s" : ""} au total</p>
+          </div>
           <InnerActionButton icon="mdi:plus" />
         </div>
 
@@ -36,9 +45,10 @@ function Home() {
                   <InnerCard
                     title={room.name}
                     description={room.description}
-                    count={
-                      room.cabinet.map((cabinet) => cabinet.auto_part).length
-                    }
+                    count={room.cabinet.reduce(
+                      (sum, c) => sum + (c.auto_part[0]?.count ?? 0),
+                      0,
+                    )}
                   />
                 </Link>
               </li>

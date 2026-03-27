@@ -56,7 +56,10 @@ function RouteComponent() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <h2 className="text-base font-semibold mt-4">Mes pièces</h2>
+        <div className="mt-4">
+          <h2 className="text-base font-semibold">Mes pièces</h2>
+          <p className="text-xs text-neutral-400">{autoParts?.length ?? 0} pièce{(autoParts?.length ?? 0) > 1 ? "s" : ""} au total</p>
+        </div>
 
         <div className="relative mt-3">
           <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
