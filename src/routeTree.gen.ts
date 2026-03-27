@@ -16,7 +16,6 @@ import { Route as AuthedSearchRouteImport } from './routes/_authed/search'
 import { Route as AuthedAddRouteImport } from './routes/_authed/add'
 import { Route as AuthedRoomsRoomIdIndexRouteImport } from './routes/_authed/rooms/$roomId.index'
 import { Route as AuthedRoomsRoomIdCabinetsCabinetIdIndexRouteImport } from './routes/_authed/rooms/$roomId/cabinets/$cabinetId.index'
-import { Route as AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRouteImport } from './routes/_authed/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
 import { Route as AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRouteImport } from './routes/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
 
 const LoginRoute = LoginRouteImport.update({
@@ -55,12 +54,6 @@ const AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute =
     path: '/rooms/$roomId/cabinets/$cabinetId/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute =
-  AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRouteImport.update({
-    id: '/_authed/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId',
-    path: '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute =
   AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRouteImport.update({
     id: '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId',
@@ -77,7 +70,6 @@ export interface FileRoutesByFullPath {
   '/rooms/$roomId/': typeof AuthedRoomsRoomIdIndexRoute
   '/rooms/$roomId/cabinets/$cabinetId/': typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
   '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
-  '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -88,7 +80,6 @@ export interface FileRoutesByTo {
   '/rooms/$roomId': typeof AuthedRoomsRoomIdIndexRoute
   '/rooms/$roomId/cabinets/$cabinetId': typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
   '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
-  '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -100,7 +91,6 @@ export interface FileRoutesById {
   '/_authed/rooms/$roomId/': typeof AuthedRoomsRoomIdIndexRoute
   '/_authed/rooms/$roomId/cabinets/$cabinetId/': typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
   '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
-  '/_authed/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId': typeof AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -113,7 +103,6 @@ export interface FileRouteTypes {
     | '/rooms/$roomId/'
     | '/rooms/$roomId/cabinets/$cabinetId/'
     | '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
-    | '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -124,7 +113,6 @@ export interface FileRouteTypes {
     | '/rooms/$roomId'
     | '/rooms/$roomId/cabinets/$cabinetId'
     | '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
-    | '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
   id:
     | '__root__'
     | '/'
@@ -135,7 +123,6 @@ export interface FileRouteTypes {
     | '/_authed/rooms/$roomId/'
     | '/_authed/rooms/$roomId/cabinets/$cabinetId/'
     | '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
-    | '/_authed/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -147,7 +134,6 @@ export interface RootRouteChildren {
   AuthedRoomsRoomIdIndexRoute: typeof AuthedRoomsRoomIdIndexRoute
   AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
   AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute
-  AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -201,13 +187,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId': {
-      id: '/_authed/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
-      path: '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
-      fullPath: '/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId'
-      preLoaderRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId': {
       id: '/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
       path: '/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId'
@@ -229,8 +208,6 @@ const rootRouteChildren: RootRouteChildren = {
     AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute,
   AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute:
     AuthedRoomsRoomIdCabinetsCabinetIdAutoPartsAutoPartIdRoute,
-  AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute:
-    AuthedRoomsRoomIdCabinetsCabinetIdAutopartsAutoPartIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
