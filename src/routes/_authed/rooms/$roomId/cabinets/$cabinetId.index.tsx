@@ -1,6 +1,5 @@
 import { InnerBack } from "#/components/innner/back";
 import { InnerCard } from "#/components/innner/card";
-import { InnerLoader } from "#/components/innner/loader";
 import { getAutoParts } from "#/server/auto-parts";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
@@ -9,7 +8,6 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: () => getAutoParts(),
-  pendingComponent: InnerLoader,
 });
 
 function RouteComponent() {
@@ -32,7 +30,7 @@ function RouteComponent() {
             {autoParts.map((autoPart) => (
               <li key={autoPart.id}>
                 <Link
-                  to="/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId"
+                  to="/rooms/$roomId/cabinets/$cabinetId/autoparts/$autoPartId"
                   params={{
                     roomId,
                     cabinetId,

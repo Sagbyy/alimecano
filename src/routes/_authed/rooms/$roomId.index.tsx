@@ -1,13 +1,11 @@
 import { InnerBack } from "#/components/innner/back";
 import { InnerCard } from "#/components/innner/card";
-import { InnerLoader } from "#/components/innner/loader";
 import { getCabinets } from "#/server/cabinets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authed/rooms/$roomId/")({
   component: RouteComponent,
   loader: () => getCabinets(),
-  pendingComponent: InnerLoader,
 });
 
 function RouteComponent() {

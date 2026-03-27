@@ -1,12 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { getRooms } from "#/server/rooms";
 import { InnerCard } from "#/components/innner/card";
-import { InnerLoader } from "#/components/innner/loader";
 
 export const Route = createFileRoute("/")({
   component: Home,
   loader: () => getRooms(),
-  pendingComponent: InnerLoader,
 });
 
 function Home() {
