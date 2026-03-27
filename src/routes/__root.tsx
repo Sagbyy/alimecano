@@ -82,7 +82,7 @@ function RootDocument() {
   ] as const;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

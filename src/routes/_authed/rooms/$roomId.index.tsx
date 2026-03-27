@@ -4,7 +4,7 @@ import { InnerLoader } from "#/components/innner/loader";
 import { getCabinets } from "#/server/cabinets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authed/rooms/$roomId")({
+export const Route = createFileRoute("/_authed/rooms/$roomId/")({
   component: RouteComponent,
   loader: () => getCabinets(),
   pendingComponent: InnerLoader,
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/_authed/rooms/$roomId")({
 
 function RouteComponent() {
   const cabinets = Route.useLoaderData();
+  const { roomId } = Route.useParams();
 
   return (
     <main className="page-wrap px-4 pb-8">
@@ -29,8 +30,8 @@ function RouteComponent() {
             {cabinets.map((cabinet) => (
               <li key={cabinet.id}>
                 <Link
-                  to="/rooms/$roomId"
-                  params={{ roomId: cabinet.id.toString() }}
+                  to="/rooms/$roomId/cabinets/$cabinetId"
+                  params={{ roomId, cabinetId: cabinet.id.toString() }}
                 >
                   <InnerCard
                     title={cabinet.name}
