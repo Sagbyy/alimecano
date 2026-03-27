@@ -1,7 +1,15 @@
 import { InnerBack } from "#/components/innner/back";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "#/components/ui/breadcrumb";
 import { getAutoPartById } from "#/server/auto-parts";
-import { createFileRoute } from "@tanstack/react-router";
 import { Icon } from "@iconify/react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId",
@@ -39,7 +47,40 @@ function RouteComponent() {
           params={{ roomId, cabinetId }}
         />
 
-        <h2 className="text-lg font-semibold mt-5">{autoPart.name}</h2>
+        <Breadcrumb className="mt-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Accueil</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/rooms/$roomId" params={{ roomId }}>
+                  Salle {roomId}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link
+                  to="/rooms/$roomId/cabinets/$cabinetId"
+                  params={{ roomId, cabinetId }}
+                >
+                  Armoire {cabinetId}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{autoPart.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <h2 className="text-lg font-semibold mt-4">{autoPart.name}</h2>
         <p className="text-sm text-neutral-500 mt-1">{autoPart.description}</p>
 
         <div className="mt-6 space-y-3">

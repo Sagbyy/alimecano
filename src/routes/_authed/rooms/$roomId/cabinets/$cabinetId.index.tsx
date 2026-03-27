@@ -1,7 +1,15 @@
 import { InnerBack } from "#/components/innner/back";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "#/components/ui/breadcrumb";
 import { getAutoParts } from "#/server/auto-parts";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { Icon } from "@iconify/react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/",
@@ -17,11 +25,31 @@ function RouteComponent() {
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <InnerBack
-          to="/rooms/$roomId/cabinets/$cabinetId"
-          params={{ roomId, cabinetId }}
-        />
-        <h2 className="text-base font-semibold mt-5">Mes pièces</h2>
+        <InnerBack to="/rooms/$roomId/" params={{ roomId }} />
+
+        <Breadcrumb className="mt-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Accueil</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/rooms/$roomId" params={{ roomId }}>
+                  Salle {roomId}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Armoire {cabinetId}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <h2 className="text-base font-semibold mt-4">Mes pièces</h2>
 
         {autoParts == null ? (
           <p className="mt-2 text-sm text-muted-foreground">
