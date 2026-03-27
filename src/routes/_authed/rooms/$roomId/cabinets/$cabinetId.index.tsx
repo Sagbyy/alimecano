@@ -1,4 +1,5 @@
 import { InnerBack } from "#/components/innner/back";
+import { InnerCard } from "#/components/innner/card";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,6 +10,7 @@ import {
 } from "#/components/ui/breadcrumb";
 import { getAutoParts } from "#/server/auto-parts";
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
@@ -21,6 +23,11 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const autoParts = Route.useLoaderData();
   const { roomId, cabinetId } = Route.useParams();
+  const [search, setSearch] = useState("");
+
+  const filtered = autoParts?.filter((p) =>
+    `${p.name} ${p.description} ${p.reference}`.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <main className="page-wrap px-4 pb-8">
@@ -51,15 +58,26 @@ function RouteComponent() {
 
         <h2 className="text-base font-semibold mt-4">Mes pièces</h2>
 
+        <div className="relative mt-3">
+          <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border-2 border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+
         {autoParts == null ? (
           <p className="mt-2 text-sm text-muted-foreground">
             Impossible de charger les pièces.
           </p>
-        ) : autoParts.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Aucune pièce.</p>
+        ) : filtered?.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">Aucun résultat.</p>
         ) : (
           <ul className="mt-3 space-y-2">
-            {autoParts.map((autoPart) => (
+            {filtered?.map((autoPart) => (
               <li key={autoPart.id}>
                 <Link
                   to="/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId"
@@ -69,40 +87,14 @@ function RouteComponent() {
                     autoPartId: autoPart.id.toString(),
                   }}
                 >
-                  <div className="flex items-center justify-between gap-4 rounded-xl border-2 border-gray-200 p-4">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold truncate">
-                        {autoPart.name}
-                      </p>
-                      <p className="text-xs text-neutral-500 truncate">
-                        {autoPart.description}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="flex items-center gap-1 text-xs text-neutral-400">
-                          <Icon icon="mdi:barcode" className="h-3.5 w-3.5" />
-                          {autoPart.reference}
-                        </span>
-                        <span className="flex items-center gap-1 text-xs text-neutral-400">
-                          <Icon
-                            icon="mdi:map-marker-outline"
-                            className="h-3.5 w-3.5"
-                          />
-                          {autoPart.location}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      {autoPart.price != null && (
-                        <span className="bg-sky-100 text-sky-800 text-xs font-medium px-2 py-1 rounded-lg">
-                          {autoPart.price} €
-                        </span>
-                      )}
-                      <Icon
-                        icon="mdi:chevron-right"
-                        className="h-5 w-5 text-neutral-300"
-                      />
-                    </div>
-                  </div>
+                  <InnerCard
+                    title={autoPart.name}
+                    description={autoPart.description}
+                    reference={autoPart.reference}
+                    location={autoPart.location}
+                    price={autoPart.price}
+                    showChevron
+                  />
                 </Link>
               </li>
             ))}

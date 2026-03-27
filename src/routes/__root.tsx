@@ -86,7 +86,7 @@ function RootDocument() {
       <head>
         <HeadContent />
       </head>
-      <body className="bg-[#f3f4f6]">
+      <body className="bg-[#fafbfc]">
         <div className={showBottomNav ? "pb-24" : undefined}>
           <Outlet />
         </div>
@@ -105,7 +105,11 @@ function RootDocument() {
           <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto w-[calc(100%-2rem)] max-w-sm rounded-full border border-[#d9dce1] bg-[#f7f8fa] p-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
             <ul className="grid grid-cols-4 gap-1">
               {navItems.map((item) => {
-                const isActive = pathname === item.to;
+                const otherTabs = ["/search", "/add", "/settings"];
+                const isActive =
+                  item.to === "/"
+                    ? !otherTabs.some((p) => pathname.startsWith(p))
+                    : pathname.startsWith(item.to);
                 return (
                   <li key={item.to}>
                     <Link
