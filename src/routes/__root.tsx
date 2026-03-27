@@ -112,7 +112,7 @@ function RootDocument() {
                       to={item.to}
                       className={`flex h-14 flex-col items-center justify-center rounded-full text-[10px] font-medium tracking-[0.08em] transition-colors ${
                         isActive
-                          ? "bg-[#2f6df6] text-white"
+                          ? "bg-sky-500 text-white"
                           : "text-[#9aa0aa] hover:text-[#6c727d]"
                       }`}
                     >

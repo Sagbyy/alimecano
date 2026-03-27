@@ -1,10 +1,13 @@
-import { InnerCardComponent } from "#/components/innner/card";
+import { InnerBack } from "#/components/innner/back";
+import { InnerCard } from "#/components/innner/card";
+import { InnerLoader } from "#/components/innner/loader";
 import { getCabinets } from "#/server/cabinets";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authed/rooms/$roomId")({
   component: RouteComponent,
   loader: () => getCabinets(),
+  pendingComponent: InnerLoader,
 });
 
 function RouteComponent() {
@@ -13,8 +16,8 @@ function RouteComponent() {
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <h2 className="text-base font-semibold">Mes armoires</h2>
-
+        <InnerBack to="/" />
+        <h2 className="text-base font-semibold mt-5">Mes armoires</h2>
         {cabinets == null ? (
           <p className="mt-2 text-sm text-muted-foreground">
             Impossible de charger les cabinets.
@@ -29,7 +32,7 @@ function RouteComponent() {
                   to="/rooms/$roomId"
                   params={{ roomId: cabinet.id.toString() }}
                 >
-                  <InnerCardComponent
+                  <InnerCard
                     title={cabinet.name}
                     description={cabinet.description}
                     count={cabinet.auto_part.length}
