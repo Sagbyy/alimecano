@@ -1,5 +1,5 @@
 import { InnerCard } from "#/components/innner/card";
-import { searchAutoParts } from "#/server/auto-parts";
+import { getAutoParts, searchAutoParts } from "#/server/auto-parts";
 import { Icon } from "@iconify/react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type SubmitEvent } from "react";
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authed/search")({
   loader: ({ deps: { query } }) =>
     query.trim().length >= 2
       ? searchAutoParts({ data: { query: query.trim() } })
-      : null,
+      : getAutoParts(),
   component: SearchPage,
 });
 
@@ -70,8 +70,6 @@ function SearchPage() {
           <p className="mt-4 text-sm text-neutral-400">
             Entrez au moins 2 caractères.
           </p>
-        ) : results == null && query.trim().length === 0 ? (
-          <EmptySearch />
         ) : results == null ? (
           <p className="mt-4 text-sm text-neutral-400">
             Erreur lors de la recherche.
@@ -84,7 +82,8 @@ function SearchPage() {
         ) : (
           <div className="mt-4">
             <p className="text-xs text-neutral-400 mb-2">
-              {results.length} résultat{results.length > 1 ? "s" : ""}
+              {results.length} pièce{results.length > 1 ? "s" : ""}
+              {query.trim().length >= 2 ? ` pour "${query}"` : ""}
             </p>
             <ul className="space-y-2">
               {results.map((part) => (
@@ -116,16 +115,5 @@ function SearchPage() {
         )}
       </section>
     </main>
-  );
-}
-
-function EmptySearch() {
-  return (
-    <div className="mt-12 flex flex-col items-center gap-2 text-neutral-300">
-      <Icon icon="mdi:magnify" className="h-12 w-12" />
-      <p className="text-sm text-center">
-        Recherchez une pièce par nom, référence ou emplacement
-      </p>
-    </div>
   );
 }

@@ -51,7 +51,9 @@ export const getAutoPartsByCabinetId = createServerFn({ method: "GET" })
 export const getAutoParts = createServerFn({ method: "GET" }).handler(
   async () => {
     const supabase = getSupabaseServerClient();
-    const { data, error } = await supabase.from("auto_part").select("*");
+    const { data, error } = await supabase
+      .from("auto_part")
+      .select("*, cabinet(id, name, room(id, name))");
 
     if (error) {
       console.error("Error fetching auto parts:", error);
