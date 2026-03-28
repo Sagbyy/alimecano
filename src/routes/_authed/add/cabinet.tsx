@@ -13,13 +13,19 @@ const formSchema = z.object({
   roomId: z.number().int().positive("Sélectionnez une salle"),
 });
 
+const searchSchema = z.object({
+  roomId: z.number().int().positive().catch(0),
+});
+
 export const Route = createFileRoute("/_authed/add/cabinet")({
+  validateSearch: searchSchema,
   loader: () => getRooms(),
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const rooms = Route.useLoaderData();
+  const { roomId } = Route.useSearch();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -27,7 +33,7 @@ function RouteComponent() {
     defaultValues: {
       name: "",
       description: "",
-      roomId: 0,
+      roomId: roomId,
     },
     validators: {
       onSubmit: formSchema,

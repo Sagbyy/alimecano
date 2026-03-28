@@ -8,6 +8,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 
+const searchSchema = z.object({
+  cabinetId: z.number().int().positive().optional().catch(0),
+});
+
 const formSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
@@ -17,7 +21,8 @@ const formSchema = z.object({
     .string()
     .refine(
       (v) =>
-        !isNaN(Number(v.replace(",", "."))) && Number(v.replace(",", ".")) >= 0,
+        !Number.isNaN(Number(v.replace(",", "."))) &&
+        Number(v.replace(",", ".")) >= 0,
       "Le prix doit être positif",
     ),
   cabinetId: z.number().int().positive("Sélectionnez une armoire"),
@@ -27,10 +32,12 @@ const formSchema = z.object({
 export const Route = createFileRoute("/_authed/add/auto-part")({
   loader: () => getCabinets(),
   component: RouteComponent,
+  validateSearch: searchSchema,
 });
 
 function RouteComponent() {
   const cabinets = Route.useLoaderData();
+  const { cabinetId } = Route.useSearch();
   const navigate = useNavigate();
   const [vehicleInput, setVehicleInput] = useState("");
 
@@ -41,7 +48,7 @@ function RouteComponent() {
       reference: "",
       location: "",
       price: "",
-      cabinetId: 0,
+      cabinetId: cabinetId ?? 0,
       compatibleVehicles: [] as string[],
     },
     validators: {

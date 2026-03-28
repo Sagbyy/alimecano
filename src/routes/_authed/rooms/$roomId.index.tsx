@@ -29,6 +29,7 @@ function RouteComponent() {
   const { cabinets, room } = Route.useLoaderData();
   const { roomId } = Route.useParams();
   const [search, setSearch] = useState("");
+  const navigate = Route.useNavigate();
 
   const filtered = cabinets?.filter((c) =>
     `${c.name} ${c.description}`.toLowerCase().includes(search.toLowerCase()),
@@ -40,7 +41,16 @@ function RouteComponent() {
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <InnerBack to="/" actionIcon="mdi:plus" />
+        <InnerBack
+          to="/"
+          actionIcon="mdi:plus"
+          onAction={() =>
+            navigate({
+              to: "/add/cabinet",
+              search: { roomId: Number(roomId) },
+            })
+          }
+        />
 
         <Breadcrumb className="mt-4">
           <BreadcrumbList>

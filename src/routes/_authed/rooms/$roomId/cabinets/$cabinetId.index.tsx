@@ -36,6 +36,7 @@ function RouteComponent() {
   const { autoParts, cabinet, room } = Route.useLoaderData();
   const { roomId, cabinetId } = Route.useParams();
   const [search, setSearch] = useState("");
+  const navigate = Route.useNavigate();
 
   const filtered = autoParts?.filter((p) =>
     `${p.name} ${p.description} ${p.reference}`
@@ -50,6 +51,12 @@ function RouteComponent() {
           to="/rooms/$roomId/"
           params={{ roomId }}
           actionIcon="mdi:plus"
+          onAction={() =>
+            navigate({
+              to: "/add/auto-part",
+              search: { cabinetId: Number(cabinetId) },
+            })
+          }
         />
 
         <Breadcrumb className="mt-4">

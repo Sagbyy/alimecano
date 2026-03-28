@@ -26,7 +26,8 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "noChildrenProp": "off"
+        "noChildrenProp": "off",
+        "useParseIntRadix": "off"
       }
     }
   },
