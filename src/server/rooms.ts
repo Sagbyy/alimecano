@@ -7,6 +7,12 @@ const roomIdSchema = z.object({
   roomId: z.number().int().positive(),
 });
 
+const createRoomSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().min(1),
+  roomId: z.number().int().positive(),
+});
+
 type RoomId = z.infer<typeof roomIdSchema>;
 
 export const getRooms = createServerFn({ method: "GET" }).handler(async () => {
@@ -39,4 +45,20 @@ export const getRoomById = createServerFn({ method: "GET" })
     }
 
     return data;
+  });
+
+export const createRoom = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof createRoomSchema>) =>
+    createRoomSchema.parse(data),
+  )
+  .handler(async ({ data: { name, description, roomId } }) => {
+    const supabase = getSupabaseServerClient();
+    const { error } = await supabase
+      .from("cabinet")
+      .insert({ name, description, room_id: roomId });
+
+    if (error) {
+      console.error("Error creating room:", error);
+      return null;
+    }
   });
