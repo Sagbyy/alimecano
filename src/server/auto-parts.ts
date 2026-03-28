@@ -6,6 +6,10 @@ const autoPartIdSchema = z.object({
   autoPartId: z.int().positive(),
 });
 
+const searchSchema = z.object({
+  query: z.string().min(1),
+});
+
 type AutoPartId = z.infer<typeof autoPartIdSchema>;
 
 export const getAutoParts = createServerFn({ method: "GET" }).handler(
@@ -21,6 +25,25 @@ export const getAutoParts = createServerFn({ method: "GET" }).handler(
     return data;
   },
 );
+
+export const searchAutoParts = createServerFn({ method: "GET" })
+  .inputValidator((data: z.infer<typeof searchSchema>) => searchSchema.parse(data))
+  .handler(async ({ data: { query } }) => {
+    const supabase = getSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("auto_part")
+      .select("*, cabinet(id, name, room(id, name))")
+      .or(
+        `name.ilike.%${query}%,description.ilike.%${query}%,reference.ilike.%${query}%,location.ilike.%${query}%`,
+      );
+
+    if (error) {
+      console.error("Error searching auto parts:", error);
+      return null;
+    }
+
+    return data;
+  });
 
 export const getAutoPartById = createServerFn({
   method: "GET",
