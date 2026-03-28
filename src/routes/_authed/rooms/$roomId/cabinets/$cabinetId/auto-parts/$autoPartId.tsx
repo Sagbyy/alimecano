@@ -10,18 +10,26 @@ import {
   BreadcrumbSeparator,
 } from "#/components/ui/breadcrumb";
 import { getAutoPartById } from "#/server/auto-parts";
+import { getCabinetById } from "#/server/cabinets";
+import { getRoomById } from "#/server/rooms";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId",
 )({
   component: RouteComponent,
-  loader: ({ params }) =>
-    getAutoPartById({ data: { autoPartId: parseInt(params.autoPartId) } }),
+  loader: async ({ params }) => {
+    const [autoPart, cabinet, room] = await Promise.all([
+      getAutoPartById({ data: { autoPartId: parseInt(params.autoPartId) } }),
+      getCabinetById({ data: { cabinetId: parseInt(params.cabinetId) } }),
+      getRoomById({ data: { roomId: parseInt(params.roomId) } }),
+    ]);
+    return { autoPart, cabinet, room };
+  },
 });
 
 function RouteComponent() {
-  const autoPart = Route.useLoaderData();
+  const { autoPart, cabinet, room } = Route.useLoaderData();
   const { roomId, cabinetId } = Route.useParams();
 
   if (!autoPart) {
@@ -60,7 +68,7 @@ function RouteComponent() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link to="/rooms/$roomId" params={{ roomId }}>
-                  Salle {roomId}
+                  {room?.name || `Salle ${roomId}`}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -71,7 +79,7 @@ function RouteComponent() {
                   to="/rooms/$roomId/cabinets/$cabinetId"
                   params={{ roomId, cabinetId }}
                 >
-                  Armoire {cabinetId}
+                  {cabinet?.name || `Armoire ${cabinetId}`}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>

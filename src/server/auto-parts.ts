@@ -2,6 +2,10 @@ import { getSupabaseServerClient } from "#/utils/supabase";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 
+const cabinetIdSchema = z.object({
+  cabinetId: z.number().int().positive(),
+});
+
 const autoPartIdSchema = z.object({
   autoPartId: z.int().positive(),
 });
@@ -11,6 +15,25 @@ const searchSchema = z.object({
 });
 
 type AutoPartId = z.infer<typeof autoPartIdSchema>;
+
+export const getAutoPartsByCabinetId = createServerFn({ method: "GET" })
+  .inputValidator((data: z.infer<typeof cabinetIdSchema>) =>
+    cabinetIdSchema.parse(data),
+  )
+  .handler(async ({ data: { cabinetId } }) => {
+    const supabase = getSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("auto_part")
+      .select("*")
+      .eq("cabinet_id", cabinetId);
+
+    if (error) {
+      console.error(`Error fetching auto parts for cabinet ${cabinetId}:`, error);
+      return null;
+    }
+
+    return data;
+  });
 
 export const getAutoParts = createServerFn({ method: "GET" }).handler(
   async () => {

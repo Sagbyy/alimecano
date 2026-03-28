@@ -2,6 +2,14 @@ import { getSupabaseServerClient } from "#/utils/supabase";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+const roomIdSchema = z.object({
+  roomId: z.number().int().positive(),
+});
+
+const cabinetIdSchema = z.object({
+  cabinetId: z.number().int().positive(),
+});
+
 const createCabinetSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
@@ -21,6 +29,45 @@ export const getCabinets = createServerFn().handler(async () => {
 
   return data;
 });
+
+export const getCabinetsByRoomId = createServerFn()
+  .inputValidator((data: z.infer<typeof roomIdSchema>) =>
+    roomIdSchema.parse(data),
+  )
+  .handler(async ({ data: { roomId } }) => {
+    const supabase = getSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("cabinet")
+      .select("*, auto_part(count)")
+      .eq("room_id", roomId);
+
+    if (error) {
+      console.error(`Error fetching cabinet with room ${roomId}:`, error);
+      return null;
+    }
+
+    return data;
+  });
+
+export const getCabinetById = createServerFn()
+  .inputValidator((data: z.infer<typeof cabinetIdSchema>) =>
+    cabinetIdSchema.parse(data),
+  )
+  .handler(async ({ data: { cabinetId } }) => {
+    const supabase = getSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("cabinet")
+      .select("*")
+      .eq("id", cabinetId)
+      .single();
+
+    if (error) {
+      console.error(`Error fetching cabinet ${cabinetId}:`, error);
+      return null;
+    }
+
+    return data;
+  });
 
 export const createCabinet = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createCabinetSchema>) =>

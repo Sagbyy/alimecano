@@ -1,5 +1,5 @@
 import { Icon } from "@iconify/react";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 interface InnerBackProps {
   to: string;
@@ -8,18 +8,17 @@ interface InnerBackProps {
   onAction?: () => void;
 }
 
-export function InnerBack({ to, params, actionIcon, onAction }: InnerBackProps) {
-  const router = useRouter();
-
+export function InnerBack({
+  to,
+  params,
+  actionIcon,
+  onAction,
+}: InnerBackProps) {
   return (
     <div className="flex items-center justify-between">
       <Link to={to} params={params}>
         <div className="rounded-full shadow-sky-200 bg-sky-500 shadow-lg border w-fit">
-          <Icon
-            icon="mdi:arrow-left"
-            className="h-5 w-5 text-white m-4"
-            onClick={() => router.history.back()}
-          />
+          <Icon icon="mdi:arrow-left" className="h-5 w-5 text-white m-4" />
         </div>
       </Link>
       {actionIcon && (

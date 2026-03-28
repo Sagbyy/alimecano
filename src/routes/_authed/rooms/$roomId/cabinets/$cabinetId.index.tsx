@@ -8,31 +8,49 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "#/components/ui/breadcrumb";
-import { getAutoParts } from "#/server/auto-parts";
+import { getAutoPartsByCabinetId } from "#/server/auto-parts";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { getCabinetById } from "#/server/cabinets";
+import { getRoomById } from "#/server/rooms";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/",
 )({
   component: RouteComponent,
-  loader: () => getAutoParts(),
+  loader: async ({ params }) => {
+    const [autoParts, cabinet, room] = await Promise.all([
+      getAutoPartsByCabinetId({
+        data: { cabinetId: parseInt(params.cabinetId) },
+      }),
+      getCabinetById({ data: { cabinetId: parseInt(params.cabinetId) } }),
+      getRoomById({ data: { roomId: parseInt(params.roomId) } }),
+    ]);
+
+    return { autoParts, cabinet, room };
+  },
 });
 
 function RouteComponent() {
-  const autoParts = Route.useLoaderData();
+  const { autoParts, cabinet, room } = Route.useLoaderData();
   const { roomId, cabinetId } = Route.useParams();
   const [search, setSearch] = useState("");
 
   const filtered = autoParts?.filter((p) =>
-    `${p.name} ${p.description} ${p.reference}`.toLowerCase().includes(search.toLowerCase()),
+    `${p.name} ${p.description} ${p.reference}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <InnerBack to="/rooms/$roomId/" params={{ roomId }} actionIcon="mdi:plus" />
+        <InnerBack
+          to="/rooms/$roomId/"
+          params={{ roomId }}
+          actionIcon="mdi:plus"
+        />
 
         <Breadcrumb className="mt-4">
           <BreadcrumbList>
@@ -45,24 +63,32 @@ function RouteComponent() {
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
                 <Link to="/rooms/$roomId" params={{ roomId }}>
-                  Salle {roomId}
+                  {room?.name || `Salle ${roomId}`}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Armoire {cabinetId}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {cabinet?.name || `Armoire ${cabinetId}`}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         <div className="mt-4">
           <h2 className="text-base font-semibold">Mes pièces</h2>
-          <p className="text-xs text-neutral-400">{autoParts?.length ?? 0} pièce{(autoParts?.length ?? 0) > 1 ? "s" : ""} au total</p>
+          <p className="text-xs text-neutral-400">
+            {autoParts?.length ?? 0} pièce
+            {(autoParts?.length ?? 0) > 1 ? "s" : ""} au total
+          </p>
         </div>
 
         <div className="relative mt-3">
-          <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Icon
+            icon="mdi:magnify"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400"
+          />
           <input
             type="text"
             placeholder="Rechercher..."
@@ -77,7 +103,9 @@ function RouteComponent() {
             Impossible de charger les pièces.
           </p>
         ) : filtered?.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Aucun résultat.</p>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Aucune pièce dans cet armoire.
+          </p>
         ) : (
           <ul className="mt-3 space-y-2">
             {filtered?.map((autoPart) => (
