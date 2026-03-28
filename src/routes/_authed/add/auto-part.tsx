@@ -13,7 +13,13 @@ const formSchema = z.object({
   description: z.string().min(1, "La description est requise"),
   reference: z.string().min(1, "La référence est requise"),
   location: z.string().min(1, "L'emplacement est requis"),
-  price: z.number().nonnegative("Le prix doit être positif"),
+  price: z
+    .string()
+    .refine(
+      (v) =>
+        !isNaN(Number(v.replace(",", "."))) && Number(v.replace(",", ".")) >= 0,
+      "Le prix doit être positif",
+    ),
   cabinetId: z.number().int().positive("Sélectionnez une armoire"),
   compatibleVehicles: z.array(z.string()),
 });
@@ -34,7 +40,7 @@ function RouteComponent() {
       description: "",
       reference: "",
       location: "",
-      price: 0,
+      price: "",
       cabinetId: 0,
       compatibleVehicles: [] as string[],
     },
@@ -42,9 +48,19 @@ function RouteComponent() {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const result = await createAutoPart({ data: value });
+      const result = await createAutoPart({
+        data: { ...value, price: Number(value.price.replace(",", ".")) },
+      });
       if (result?.ok) {
-        navigate({ to: "/" });
+        navigate({
+          to: "/rooms/$roomId/cabinets/$cabinetId",
+          params: {
+            roomId: String(
+              cabinets?.find((c) => c.id === value.cabinetId)?.room_id,
+            ),
+            cabinetId: String(value.cabinetId),
+          },
+        });
       }
     },
   });
@@ -166,12 +182,11 @@ function RouteComponent() {
                 </label>
                 <input
                   id={field.name}
-                  type="number"
-                  min={0}
-                  step={0.01}
+                  type="text"
+                  inputMode="decimal"
                   placeholder="Ex: 12.99"
                   value={field.state.value}
-                  onChange={(e) => field.handleChange(Number(e.target.value))}
+                  onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
                   className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-sky-400"
                 />
