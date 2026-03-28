@@ -6,6 +6,16 @@ const cabinetIdSchema = z.object({
   cabinetId: z.number().int().positive(),
 });
 
+const createAutoPartSchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+  description: z.string().min(1, "La description est requise"),
+  reference: z.string().min(1, "La référence est requise"),
+  location: z.string().min(1, "L'emplacement est requis"),
+  price: z.number().nonnegative("Le prix doit être positif"),
+  cabinetId: z.number().int().positive("Sélectionnez une armoire"),
+  compatibleVehicles: z.array(z.string()),
+});
+
 const autoPartIdSchema = z.object({
   autoPartId: z.int().positive(),
 });
@@ -28,7 +38,10 @@ export const getAutoPartsByCabinetId = createServerFn({ method: "GET" })
       .eq("cabinet_id", cabinetId);
 
     if (error) {
-      console.error(`Error fetching auto parts for cabinet ${cabinetId}:`, error);
+      console.error(
+        `Error fetching auto parts for cabinet ${cabinetId}:`,
+        error,
+      );
       return null;
     }
 
@@ -50,7 +63,9 @@ export const getAutoParts = createServerFn({ method: "GET" }).handler(
 );
 
 export const searchAutoParts = createServerFn({ method: "GET" })
-  .inputValidator((data: z.infer<typeof searchSchema>) => searchSchema.parse(data))
+  .inputValidator((data: z.infer<typeof searchSchema>) =>
+    searchSchema.parse(data),
+  )
   .handler(async ({ data: { query } }) => {
     const supabase = getSupabaseServerClient();
     const { data, error } = await supabase
@@ -86,4 +101,33 @@ export const getAutoPartById = createServerFn({
     }
 
     return data;
+  });
+
+export const createAutoPart = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof createAutoPartSchema>) =>
+    createAutoPartSchema.parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { data: autoPart, error } = await supabase
+      .from("auto_part")
+      .insert({
+        name: data.name,
+        description: data.description,
+        reference: data.reference,
+        location: data.location,
+        price: data.price,
+        cabinet_id: data.cabinetId,
+        compatible_vehicle: data.compatibleVehicles,
+        photo_id: "", // TODO: handle photo upload
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating auto part:", error);
+      return { ok: false, error: "Erreur lors de la création de la pièce." };
+    }
+
+    return { ok: true, autoPart };
   });
