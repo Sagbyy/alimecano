@@ -46,6 +46,33 @@ export const getRoomById = createServerFn({ method: "GET" })
     return data;
   });
 
+const updateRoomSchema = z.object({
+  roomId: z.number().int().positive(),
+  name: z.string().min(1, "Le nom est requis"),
+  description: z.string().min(1, "La description est requise"),
+});
+
+export const updateRoom = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof updateRoomSchema>) =>
+    updateRoomSchema.parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { data: room, error } = await supabase
+      .from("room")
+      .update({ name: data.name, description: data.description })
+      .eq("id", data.roomId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating room:", error);
+      return { ok: false, error: "Erreur lors de la mise à jour de la salle." };
+    }
+
+    return { ok: true, room };
+  });
+
 export const createRoom = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createRoomSchema>) =>
     createRoomSchema.parse(data),

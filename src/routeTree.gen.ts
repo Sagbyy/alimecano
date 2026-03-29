@@ -14,6 +14,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedSearchRouteImport } from './routes/_authed/search'
 import { Route as AuthedAddIndexRouteImport } from './routes/_authed/add/index'
+import { Route as AuthedEditRoomRouteImport } from './routes/_authed/edit/room'
+import { Route as AuthedEditCabinetRouteImport } from './routes/_authed/edit/cabinet'
 import { Route as AuthedEditAutoPartRouteImport } from './routes/_authed/edit/auto-part'
 import { Route as AuthedAddRoomRouteImport } from './routes/_authed/add/room'
 import { Route as AuthedAddCabinetRouteImport } from './routes/_authed/add/cabinet'
@@ -45,6 +47,16 @@ const AuthedSearchRoute = AuthedSearchRouteImport.update({
 const AuthedAddIndexRoute = AuthedAddIndexRouteImport.update({
   id: '/_authed/add/',
   path: '/add/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedEditRoomRoute = AuthedEditRoomRouteImport.update({
+  id: '/_authed/edit/room',
+  path: '/edit/room',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedEditCabinetRoute = AuthedEditCabinetRouteImport.update({
+  id: '/_authed/edit/cabinet',
+  path: '/edit/cabinet',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedEditAutoPartRoute = AuthedEditAutoPartRouteImport.update({
@@ -94,6 +106,8 @@ export interface FileRoutesByFullPath {
   '/add/cabinet': typeof AuthedAddCabinetRoute
   '/add/room': typeof AuthedAddRoomRoute
   '/edit/auto-part': typeof AuthedEditAutoPartRoute
+  '/edit/cabinet': typeof AuthedEditCabinetRoute
+  '/edit/room': typeof AuthedEditRoomRoute
   '/add/': typeof AuthedAddIndexRoute
   '/rooms/$roomId/': typeof AuthedRoomsRoomIdIndexRoute
   '/rooms/$roomId/cabinets/$cabinetId/': typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
@@ -108,6 +122,8 @@ export interface FileRoutesByTo {
   '/add/cabinet': typeof AuthedAddCabinetRoute
   '/add/room': typeof AuthedAddRoomRoute
   '/edit/auto-part': typeof AuthedEditAutoPartRoute
+  '/edit/cabinet': typeof AuthedEditCabinetRoute
+  '/edit/room': typeof AuthedEditRoomRoute
   '/add': typeof AuthedAddIndexRoute
   '/rooms/$roomId': typeof AuthedRoomsRoomIdIndexRoute
   '/rooms/$roomId/cabinets/$cabinetId': typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
@@ -123,6 +139,8 @@ export interface FileRoutesById {
   '/_authed/add/cabinet': typeof AuthedAddCabinetRoute
   '/_authed/add/room': typeof AuthedAddRoomRoute
   '/_authed/edit/auto-part': typeof AuthedEditAutoPartRoute
+  '/_authed/edit/cabinet': typeof AuthedEditCabinetRoute
+  '/_authed/edit/room': typeof AuthedEditRoomRoute
   '/_authed/add/': typeof AuthedAddIndexRoute
   '/_authed/rooms/$roomId/': typeof AuthedRoomsRoomIdIndexRoute
   '/_authed/rooms/$roomId/cabinets/$cabinetId/': typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
@@ -139,6 +157,8 @@ export interface FileRouteTypes {
     | '/add/cabinet'
     | '/add/room'
     | '/edit/auto-part'
+    | '/edit/cabinet'
+    | '/edit/room'
     | '/add/'
     | '/rooms/$roomId/'
     | '/rooms/$roomId/cabinets/$cabinetId/'
@@ -153,6 +173,8 @@ export interface FileRouteTypes {
     | '/add/cabinet'
     | '/add/room'
     | '/edit/auto-part'
+    | '/edit/cabinet'
+    | '/edit/room'
     | '/add'
     | '/rooms/$roomId'
     | '/rooms/$roomId/cabinets/$cabinetId'
@@ -167,6 +189,8 @@ export interface FileRouteTypes {
     | '/_authed/add/cabinet'
     | '/_authed/add/room'
     | '/_authed/edit/auto-part'
+    | '/_authed/edit/cabinet'
+    | '/_authed/edit/room'
     | '/_authed/add/'
     | '/_authed/rooms/$roomId/'
     | '/_authed/rooms/$roomId/cabinets/$cabinetId/'
@@ -182,6 +206,8 @@ export interface RootRouteChildren {
   AuthedAddCabinetRoute: typeof AuthedAddCabinetRoute
   AuthedAddRoomRoute: typeof AuthedAddRoomRoute
   AuthedEditAutoPartRoute: typeof AuthedEditAutoPartRoute
+  AuthedEditCabinetRoute: typeof AuthedEditCabinetRoute
+  AuthedEditRoomRoute: typeof AuthedEditRoomRoute
   AuthedAddIndexRoute: typeof AuthedAddIndexRoute
   AuthedRoomsRoomIdIndexRoute: typeof AuthedRoomsRoomIdIndexRoute
   AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute: typeof AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute
@@ -223,6 +249,20 @@ declare module '@tanstack/react-router' {
       path: '/add'
       fullPath: '/add/'
       preLoaderRoute: typeof AuthedAddIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/edit/room': {
+      id: '/_authed/edit/room'
+      path: '/edit/room'
+      fullPath: '/edit/room'
+      preLoaderRoute: typeof AuthedEditRoomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/edit/cabinet': {
+      id: '/_authed/edit/cabinet'
+      path: '/edit/cabinet'
+      fullPath: '/edit/cabinet'
+      preLoaderRoute: typeof AuthedEditCabinetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/edit/auto-part': {
@@ -286,6 +326,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedAddCabinetRoute: AuthedAddCabinetRoute,
   AuthedAddRoomRoute: AuthedAddRoomRoute,
   AuthedEditAutoPartRoute: AuthedEditAutoPartRoute,
+  AuthedEditCabinetRoute: AuthedEditCabinetRoute,
+  AuthedEditRoomRoute: AuthedEditRoomRoute,
   AuthedAddIndexRoute: AuthedAddIndexRoute,
   AuthedRoomsRoomIdIndexRoute: AuthedRoomsRoomIdIndexRoute,
   AuthedRoomsRoomIdCabinetsCabinetIdIndexRoute:

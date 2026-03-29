@@ -69,6 +69,33 @@ export const getCabinetById = createServerFn()
     return data;
   });
 
+const updateCabinetSchema = z.object({
+  cabinetId: z.number().int().positive(),
+  name: z.string().min(1, "Le nom est requis"),
+  description: z.string().min(1, "La description est requise"),
+});
+
+export const updateCabinet = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof updateCabinetSchema>) =>
+    updateCabinetSchema.parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { data: cabinet, error } = await supabase
+      .from("cabinet")
+      .update({ name: data.name, description: data.description })
+      .eq("id", data.cabinetId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating cabinet:", error);
+      return { ok: false, error: "Erreur lors de la mise à jour de l'armoire." };
+    }
+
+    return { ok: true, cabinet };
+  });
+
 export const createCabinet = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createCabinetSchema>) =>
     createCabinetSchema.parse(data),

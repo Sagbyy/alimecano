@@ -12,7 +12,7 @@ import {
 import { getAutoPartById } from "#/server/auto-parts";
 import { getCabinetById } from "#/server/cabinets";
 import { getRoomById } from "#/server/rooms";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId",
@@ -30,7 +30,8 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { autoPart, cabinet, room } = Route.useLoaderData();
-  const { roomId, cabinetId } = Route.useParams();
+  const { roomId, cabinetId, autoPartId } = Route.useParams();
+  const navigate = useNavigate();
 
   if (!autoPart) {
     return (
@@ -55,6 +56,12 @@ function RouteComponent() {
           to="/rooms/$roomId/cabinets/$cabinetId/"
           params={{ roomId, cabinetId }}
           actionIcon="mdi:pencil"
+          onAction={() =>
+            navigate({
+              to: "/edit/auto-part",
+              search: { autoPartId: parseInt(autoPartId), roomId, cabinetId },
+            })
+          }
         />
 
         <Breadcrumb className="mt-4">

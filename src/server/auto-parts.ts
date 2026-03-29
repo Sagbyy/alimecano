@@ -105,6 +105,44 @@ export const getAutoPartById = createServerFn({
     return data;
   });
 
+const updateAutoPartSchema = z.object({
+  autoPartId: z.number().int().positive(),
+  name: z.string().min(1, "Le nom est requis"),
+  description: z.string().min(1, "La description est requise"),
+  reference: z.string().min(1, "La référence est requise"),
+  location: z.string().min(1, "L'emplacement est requis"),
+  price: z.number().nonnegative("Le prix doit être positif"),
+  compatibleVehicles: z.array(z.string()),
+});
+
+export const updateAutoPart = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof updateAutoPartSchema>) =>
+    updateAutoPartSchema.parse(data),
+  )
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { data: autoPart, error } = await supabase
+      .from("auto_part")
+      .update({
+        name: data.name,
+        description: data.description,
+        reference: data.reference,
+        location: data.location,
+        price: data.price,
+        compatible_vehicle: data.compatibleVehicles,
+      })
+      .eq("id", data.autoPartId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating auto part:", error);
+      return { ok: false, error: "Erreur lors de la mise à jour de la pièce." };
+    }
+
+    return { ok: true, autoPart };
+  });
+
 export const createAutoPart = createServerFn({ method: "POST" })
   .inputValidator((data: z.infer<typeof createAutoPartSchema>) =>
     createAutoPartSchema.parse(data),

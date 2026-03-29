@@ -50,6 +50,13 @@ function RouteComponent() {
               search: { roomId: Number(roomId) },
             })
           }
+          secondaryActionIcon="mdi:pencil"
+          onSecondaryAction={() =>
+            navigate({
+              to: "/edit/room",
+              search: { roomId: Number(roomId) },
+            })
+          }
         />
 
         <Breadcrumb className="mt-4">
