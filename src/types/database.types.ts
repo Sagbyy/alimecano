@@ -23,7 +23,7 @@ export type Database = {
           id: number
           location: string
           name: string
-          photo_id: string
+          photo_url: string
           price: number | null
           reference: string
           updated_at: string
@@ -36,7 +36,7 @@ export type Database = {
           id?: number
           location: string
           name: string
-          photo_id: string
+          photo_url?: string
           price?: number | null
           reference: string
           updated_at?: string
@@ -49,7 +49,7 @@ export type Database = {
           id?: number
           location?: string
           name?: string
-          photo_id?: string
+          photo_url?: string
           price?: number | null
           reference?: string
           updated_at?: string
@@ -70,6 +70,7 @@ export type Database = {
           description: string
           id: number
           name: string
+          photo_url: string | null
           room_id: number
           updated_at: string
         }
@@ -78,6 +79,7 @@ export type Database = {
           description: string
           id?: number
           name: string
+          photo_url?: string | null
           room_id: number
           updated_at?: string
         }
@@ -86,6 +88,7 @@ export type Database = {
           description?: string
           id?: number
           name?: string
+          photo_url?: string | null
           room_id?: number
           updated_at?: string
         }

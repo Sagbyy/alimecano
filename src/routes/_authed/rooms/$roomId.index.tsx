@@ -112,6 +112,7 @@ function RouteComponent() {
                     title={cabinet.name}
                     description={cabinet.description}
                     count={cabinet.auto_part[0]?.count ?? 0}
+                    photo={cabinet.photo_url}
                   />
                 </Link>
               </li>

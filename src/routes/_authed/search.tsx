@@ -100,8 +100,9 @@ function SearchPage() {
                       title={part.name}
                       description={part.description}
                       reference={part.reference}
-                      location={`${part.cabinet.room.name} > ${part.cabinet.name} > ${part.location}`}
+                      location={part.location}
                       price={part.price}
+                      photo={part.photo_url}
                     />
                     <p className="text-xs text-neutral-400 mt-1 ml-1"></p>
                   </Link>

@@ -1,4 +1,5 @@
 import { InnerBack } from "#/components/inner/back";
+import { PhotoUpload } from "#/components/inner/photo-upload";
 import { FieldError } from "#/components/ui/field";
 import { createAutoPart } from "#/server/auto-parts";
 import { getCabinets } from "#/server/cabinets";
@@ -27,6 +28,12 @@ const formSchema = z.object({
     ),
   cabinetId: z.number().int().positive("Sélectionnez une armoire"),
   compatibleVehicles: z.array(z.string()),
+  photo: z
+    .instanceof(File)
+    .refine(
+      (file) => file.type.startsWith("image/"),
+      "Le fichier doit être une image",
+    ),
 });
 
 export const Route = createFileRoute("/_authed/add/auto-part")({
@@ -50,14 +57,25 @@ function RouteComponent() {
       price: "",
       cabinetId: cabinetId ?? 0,
       compatibleVehicles: [] as string[],
+      photo: new File([], ""),
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const result = await createAutoPart({
-        data: { ...value, price: Number(value.price.replace(",", ".")) },
-      });
+      const formData = new FormData();
+      formData.append("name", value.name);
+      formData.append("description", value.description);
+      formData.append("reference", value.reference);
+      formData.append("location", value.location);
+      formData.append("price", String(Number(value.price.replace(",", "."))));
+      formData.append("cabinetId", String(value.cabinetId));
+      for (const v of value.compatibleVehicles) {
+        formData.append("compatibleVehicles", v);
+      }
+      if (value.photo) formData.append("photo", value.photo);
+
+      const result = await createAutoPart({ data: formData });
       if (result?.ok) {
         navigate({
           to: "/rooms/$roomId/cabinets/$cabinetId",
@@ -286,6 +304,19 @@ function RouteComponent() {
                 />
                 <FieldError errors={field.state.meta.errors} />
               </div>
+            )}
+          />
+
+          <form.Field
+            name="photo"
+            children={(field) => (
+              <>
+                <PhotoUpload
+                  value={field.state.value ?? null}
+                  onChange={(file) => field.handleChange(file ?? new File([], ""))}
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </>
             )}
           />
 

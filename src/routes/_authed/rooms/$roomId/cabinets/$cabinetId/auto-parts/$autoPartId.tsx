@@ -1,6 +1,7 @@
 import { InnerBack } from "#/components/inner/back";
 import { InnerRow } from "#/components/inner/row";
 import { InnerTags } from "#/components/inner/tags";
+import { AspectRatio } from "#/components/ui/aspect-ratio";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +13,9 @@ import {
 import { getAutoPartById } from "#/server/auto-parts";
 import { getCabinetById } from "#/server/cabinets";
 import { getRoomById } from "#/server/rooms";
+import { Dialog, DialogContent } from "#/components/ui/dialog";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/auto-parts/$autoPartId",
@@ -32,6 +35,7 @@ function RouteComponent() {
   const { autoPart, cabinet, room } = Route.useLoaderData();
   const { roomId, cabinetId, autoPartId } = Route.useParams();
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   if (!autoPart) {
     return (
@@ -96,6 +100,40 @@ function RouteComponent() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+
+        {autoPart.photo_url && (
+          <>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogContent
+                className="max-w-3xl p-2 bg-transparent border-none shadow-none"
+                showCloseButton={true}
+              >
+                <img
+                  src={autoPart.photo_url}
+                  alt="Aperçu plein écran"
+                  className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                />
+              </DialogContent>
+            </Dialog>
+            <div className="mt-4 rounded-xl overflow-hidden border-2 border-gray-200">
+              <AspectRatio ratio={16 / 9}>
+                <img
+                  src={autoPart.photo_url}
+                  alt={autoPart.name}
+                  className="h-full w-full object-cover cursor-zoom-in"
+                  onClick={() => setDialogOpen(true)}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.nextElementSibling?.removeAttribute("hidden");
+                  }}
+                />
+                <div hidden className="h-full w-full flex items-center justify-center bg-gray-100">
+                  <span className="text-xs text-gray-400">Image indisponible</span>
+                </div>
+              </AspectRatio>
+            </div>
+          </>
+        )}
 
         <h2 className="text-lg font-semibold mt-4">{autoPart.name}</h2>
         <p className="text-sm text-neutral-500 mt-1">{autoPart.description}</p>

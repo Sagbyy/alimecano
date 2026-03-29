@@ -1,4 +1,5 @@
 import { InnerBack } from "#/components/inner/back";
+import { PhotoUpload } from "#/components/inner/photo-upload";
 import { FieldError } from "#/components/ui/field";
 import { createCabinet } from "#/server/cabinets";
 import { getRooms } from "#/server/rooms";
@@ -11,6 +12,12 @@ const formSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
   roomId: z.number().int().positive("Sélectionnez une salle"),
+  photo: z
+    .instanceof(File)
+    .refine(
+      (file) => file.type.startsWith("image/"),
+      "Le fichier doit être une image",
+    ),
 });
 
 const searchSchema = z.object({
@@ -34,13 +41,19 @@ function RouteComponent() {
       name: "",
       description: "",
       roomId: roomId,
+      photo: new File([], ""),
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("Submitting form with value:", value);
-      const result = await createCabinet({ data: value });
+      const formData = new FormData();
+      formData.append("name", value.name);
+      formData.append("description", value.description);
+      formData.append("roomId", String(value.roomId));
+      if (value.photo) formData.append("photo", value.photo);
+
+      const result = await createCabinet({ data: formData });
       if (result.ok) {
         navigate({
           to: "/rooms/$roomId",
@@ -139,6 +152,19 @@ function RouteComponent() {
                 />
                 <FieldError errors={field.state.meta.errors} />
               </div>
+            )}
+          />
+
+          <form.Field
+            name="photo"
+            children={(field) => (
+              <>
+                <PhotoUpload
+                  value={field.state.value ?? null}
+                  onChange={(file) => field.handleChange(file ?? new File([], ""))}
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </>
             )}
           />
 

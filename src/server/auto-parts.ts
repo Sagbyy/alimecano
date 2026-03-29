@@ -1,6 +1,9 @@
-import { getSupabaseServerClient } from "#/utils/supabase";
+import { getSupabaseAdminClient, getSupabaseServerClient } from "#/utils/supabase";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 const cabinetIdSchema = z.object({
   cabinetId: z.number().int().positive(),
@@ -14,6 +17,14 @@ const createAutoPartSchema = z.object({
   price: z.number().nonnegative("Le prix doit être positif"),
   cabinetId: z.number().int().positive("Sélectionnez une armoire"),
   compatibleVehicles: z.array(z.string()),
+  photo: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Image trop volumineuse")
+    .refine(
+      (file) => ALLOWED_IMAGE_TYPES.includes(file.type),
+      "Format non autorisé",
+    )
+    .optional(),
 });
 
 const autoPartIdSchema = z.object({
@@ -144,11 +155,53 @@ export const updateAutoPart = createServerFn({ method: "POST" })
   });
 
 export const createAutoPart = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof createAutoPartSchema>) =>
-    createAutoPartSchema.parse(data),
-  )
-  .handler(async ({ data }) => {
-    const supabase = getSupabaseServerClient();
+  .inputValidator((data) => {
+    if (!(data instanceof FormData)) {
+      throw new Error("Expected FormData");
+    }
+
+    const photoFile = data.get("photo");
+    const compatibleVehicles = data.getAll("compatibleVehicles") as string[];
+
+    const parsed = createAutoPartSchema.parse({
+      name: data.get("name"),
+      description: data.get("description"),
+      reference: data.get("reference"),
+      location: data.get("location"),
+      price: Number(data.get("price")),
+      cabinetId: Number(data.get("cabinetId")),
+      compatibleVehicles,
+      photo: photoFile instanceof File && photoFile.size > 0 ? photoFile : undefined,
+    });
+
+    return parsed;
+  })
+  .handler(async ({ data }: { data: z.infer<typeof createAutoPartSchema> }) => {
+    const supabase = getSupabaseAdminClient();
+
+    let photoUrl = "";
+
+    if (data.photo) {
+      const photoNamePath = `${Date.now()}-${crypto.randomUUID()}.${data.photo.name.split(".").pop()}`;
+      const { error: photoUploadError } = await supabase.storage
+        .from("auto-parts")
+        .upload(photoNamePath, data.photo, {
+          contentType: data.photo.type,
+          upsert: false,
+          cacheControl: "3600",
+        });
+
+      if (photoUploadError) {
+        throw new Error(`Upload Supabase échoué: ${photoUploadError.message}`);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("auto-parts")
+        .getPublicUrl(photoNamePath);
+
+      photoUrl = publicUrlData.publicUrl;
+    }
+
     const { data: autoPart, error } = await supabase
       .from("auto_part")
       .insert({
@@ -159,7 +212,7 @@ export const createAutoPart = createServerFn({ method: "POST" })
         price: data.price,
         cabinet_id: data.cabinetId,
         compatible_vehicle: data.compatibleVehicles,
-        photo_id: "", // TODO: handle photo upload
+        photo_url: photoUrl,
       })
       .select()
       .single();

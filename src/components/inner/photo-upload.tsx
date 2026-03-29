@@ -3,6 +3,31 @@ import { Dialog, DialogContent } from "#/components/ui/dialog";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
+async function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return resolve(file);
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        quality,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 interface PhotoUploadProps {
   value?: File | null;
   onChange: (file: File | null) => void;
@@ -29,7 +54,8 @@ export function PhotoUpload({
     maxSize,
     onFilesChange: (files) => {
       const file = files[0]?.file instanceof File ? files[0].file : null;
-      onChange(file);
+      if (!file) { onChange(null); return; }
+      compressImage(file).then(onChange);
     },
   });
 
@@ -95,11 +121,11 @@ export function PhotoUpload({
             <div className="text-center">
               <p className="text-sm text-neutral-500">
                 Glissez une image ou{" "}
-                <span className="text-sky-500 font-medium">parcourir</span>
+                <span className="text-sky-500 font-medium">
+                  parcourir ou prendre une photo
+                </span>
               </p>
-              <p className="text-xs text-neutral-300 mt-0.5">
-                PNG, JPG, WEBP — max {Math.round(maxSize / 1024 / 1024)} Mo
-              </p>
+              <p className="text-xs text-neutral-300 mt-0.5"></p>
             </div>
           </div>
         )}

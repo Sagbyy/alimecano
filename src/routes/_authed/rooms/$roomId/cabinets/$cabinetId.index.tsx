@@ -138,6 +138,7 @@ function RouteComponent() {
                     reference={autoPart.reference}
                     location={autoPart.location}
                     price={autoPart.price}
+                    photo={autoPart.photo_url}
                   />
                 </Link>
               </li>
