@@ -1,4 +1,5 @@
 import { InnerBack } from "#/components/inner/back";
+import { PhotoUpload } from "#/components/inner/photo-upload";
 import { FieldError } from "#/components/ui/field";
 import { createRoom } from "#/server/rooms";
 import { useForm } from "@tanstack/react-form";
@@ -106,33 +107,15 @@ function RouteComponent() {
 
           <form.Field
             name="photo"
-            children={(field) => {
-              const handleFileChange = (
-                e: React.ChangeEvent<HTMLInputElement>,
-              ) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  field.handleChange(file);
-                }
-              };
-
-              return (
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium" htmlFor={field.name}>
-                    Photo
-                  </label>
-                  <input
-                    id={field.name}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    onBlur={field.handleBlur}
-                    className="w-full text-sm text-gray-500 file:mr-4 file:rounded-xl file:border-2 file:border-gray-200 file:bg-white file:px-4 file:py-2.5 file:text-sm file:font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </div>
-              );
-            }}
+            children={(field) => (
+              <>
+                <PhotoUpload
+                  value={field.state.value}
+                  onChange={(file) => field.handleChange(file ?? new File([], ""))}
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </>
+            )}
           />
 
           <form.Subscribe

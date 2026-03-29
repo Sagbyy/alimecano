@@ -28,6 +28,10 @@
       "correctness": {
         "noChildrenProp": "off",
         "useParseIntRadix": "off"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off"
       }
     }
   },

@@ -57,6 +57,7 @@ function Home() {
                       (sum, c) => sum + (c.auto_part[0]?.count ?? 0),
                       0,
                     )}
+                    photo={room.photo_url}
                   />
                 </Link>
               </li>
