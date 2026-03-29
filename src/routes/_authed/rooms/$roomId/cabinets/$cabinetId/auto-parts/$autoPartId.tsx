@@ -10,10 +10,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "#/components/ui/breadcrumb";
-import { getAutoPartById } from "#/server/auto-parts";
+import { deleteAutoPart, getAutoPartById } from "#/server/auto-parts";
 import { getCabinetById } from "#/server/cabinets";
+import { Icon } from "@iconify/react";
 import { getRoomById } from "#/server/rooms";
-import { Dialog, DialogContent } from "#/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "#/components/ui/dialog";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -36,6 +37,8 @@ function RouteComponent() {
   const { roomId, cabinetId, autoPartId } = Route.useParams();
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!autoPart) {
     return (
@@ -108,6 +111,9 @@ function RouteComponent() {
                 className="max-w-3xl p-2 bg-transparent border-none shadow-none"
                 showCloseButton={true}
               >
+                <DialogTitle className="sr-only">
+                  Aperçu de la photo
+                </DialogTitle>
                 <img
                   src={autoPart.photo_url}
                   alt="Aperçu plein écran"
@@ -124,11 +130,18 @@ function RouteComponent() {
                   onClick={() => setDialogOpen(true)}
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
-                    e.currentTarget.nextElementSibling?.removeAttribute("hidden");
+                    e.currentTarget.nextElementSibling?.removeAttribute(
+                      "hidden",
+                    );
                   }}
                 />
-                <div hidden className="h-full w-full flex items-center justify-center bg-gray-100">
-                  <span className="text-xs text-gray-400">Image indisponible</span>
+                <div
+                  hidden
+                  className="h-full w-full flex items-center justify-center bg-gray-100"
+                >
+                  <span className="text-xs text-gray-400">
+                    Image indisponible
+                  </span>
                 </div>
               </AspectRatio>
             </div>
@@ -164,6 +177,54 @@ function RouteComponent() {
             />
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setDeleteDialogOpen(true)}
+          className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl border-2 border-red-200 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
+        >
+          <Icon icon="mdi:trash-can-outline" className="h-4 w-4" />
+          Supprimer la pièce
+        </button>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogTitle>Supprimer la pièce ?</DialogTitle>
+            <p className="text-sm text-neutral-500 mt-1">
+              Cette action est irréversible. La pièce et sa photo seront
+              définitivement supprimées.
+            </p>
+            <div className="flex gap-3 mt-4">
+              <button
+                type="button"
+                onClick={() => setDeleteDialogOpen(false)}
+                className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-medium text-neutral-600"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  setIsDeleting(true);
+                  const result = await deleteAutoPart({
+                    data: { autoPartId: parseInt(autoPartId) },
+                  });
+                  if (result.ok) {
+                    navigate({
+                      to: "/rooms/$roomId/cabinets/$cabinetId",
+                      params: { roomId, cabinetId },
+                    });
+                  }
+                  setIsDeleting(false);
+                }}
+                className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {isDeleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </section>
     </main>
   );

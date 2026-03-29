@@ -124,14 +124,50 @@ const updateAutoPartSchema = z.object({
   location: z.string().min(1, "L'emplacement est requis"),
   price: z.number().nonnegative("Le prix doit être positif"),
   compatibleVehicles: z.array(z.string()),
+  photo: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Image trop volumineuse")
+    .refine((file) => ALLOWED_IMAGE_TYPES.includes(file.type), "Format non autorisé")
+    .optional(),
 });
 
 export const updateAutoPart = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof updateAutoPartSchema>) =>
-    updateAutoPartSchema.parse(data),
-  )
-  .handler(async ({ data }) => {
-    const supabase = getSupabaseServerClient();
+  .inputValidator((data) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const photoFile = data.get("photo");
+    const compatibleVehicles = data.getAll("compatibleVehicles") as string[];
+    return updateAutoPartSchema.parse({
+      autoPartId: Number(data.get("autoPartId")),
+      name: data.get("name"),
+      description: data.get("description"),
+      reference: data.get("reference"),
+      location: data.get("location"),
+      price: Number(data.get("price")),
+      compatibleVehicles,
+      photo: photoFile instanceof File && photoFile.size > 0 ? photoFile : undefined,
+    });
+  })
+  .handler(async ({ data }: { data: z.infer<typeof updateAutoPartSchema> }) => {
+    const supabase = getSupabaseAdminClient();
+
+    let photoUrl: string | undefined;
+
+    if (data.photo) {
+      const { data: existing } = await supabase
+        .from("auto_part").select("photo_url").eq("id", data.autoPartId).single();
+
+      if (existing?.photo_url) {
+        const old = new URL(existing.photo_url).pathname.split("/auto-parts/")[1];
+        if (old) await supabase.storage.from("auto-parts").remove([old]);
+      }
+
+      const path = `${Date.now()}-${crypto.randomUUID()}.${data.photo.name.split(".").pop()}`;
+      await supabase.storage.from("auto-parts").upload(path, data.photo, {
+        contentType: data.photo.type, upsert: false, cacheControl: "3600",
+      });
+      photoUrl = supabase.storage.from("auto-parts").getPublicUrl(path).data.publicUrl;
+    }
+
     const { data: autoPart, error } = await supabase
       .from("auto_part")
       .update({
@@ -141,6 +177,8 @@ export const updateAutoPart = createServerFn({ method: "POST" })
         location: data.location,
         price: data.price,
         compatible_vehicle: data.compatibleVehicles,
+        updated_at: new Date().toISOString(),
+        ...(photoUrl !== undefined && { photo_url: photoUrl }),
       })
       .eq("id", data.autoPartId)
       .select()
@@ -223,4 +261,43 @@ export const createAutoPart = createServerFn({ method: "POST" })
     }
 
     return { ok: true, autoPart };
+  });
+
+export const deleteAutoPart = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof autoPartIdSchema>) =>
+    autoPartIdSchema.parse(data),
+  )
+  .handler(async ({ data: { autoPartId } }) => {
+    const supabase = getSupabaseAdminClient();
+
+    const { data: autoPart, error: fetchError } = await supabase
+      .from("auto_part")
+      .select("photo_url")
+      .eq("id", autoPartId)
+      .single();
+
+    if (fetchError) {
+      console.error("Error fetching auto part for deletion:", fetchError);
+      return { ok: false, error: "Pièce introuvable." };
+    }
+
+    if (autoPart.photo_url) {
+      const url = new URL(autoPart.photo_url);
+      const pathParts = url.pathname.split("/auto-parts/");
+      if (pathParts[1]) {
+        await supabase.storage.from("auto-parts").remove([pathParts[1]]);
+      }
+    }
+
+    const { error } = await supabase
+      .from("auto_part")
+      .delete()
+      .eq("id", autoPartId);
+
+    if (error) {
+      console.error("Error deleting auto part:", error);
+      return { ok: false, error: "Erreur lors de la suppression de la pièce." };
+    }
+
+    return { ok: true };
   });

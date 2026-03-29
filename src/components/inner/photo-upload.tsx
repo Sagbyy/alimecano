@@ -1,5 +1,5 @@
 import { useFileUpload } from "#/hooks/use-file-upload";
-import { Dialog, DialogContent } from "#/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "#/components/ui/dialog";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
@@ -32,11 +32,13 @@ interface PhotoUploadProps {
   value?: File | null;
   onChange: (file: File | null) => void;
   maxSize?: number;
+  initialUrl?: string | null;
 }
 
 export function PhotoUpload({
   onChange,
   maxSize = 5 * 1024 * 1024,
+  initialUrl,
 }: PhotoUploadProps) {
   const [
     { files, isDragging },
@@ -59,8 +61,10 @@ export function PhotoUpload({
     },
   });
 
-  const preview = files[0]?.preview;
+  const newPreview = files[0]?.preview;
   const fileId = files[0]?.id;
+  const preview = newPreview ?? initialUrl ?? null;
+  const isNew = !!newPreview;
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
@@ -70,6 +74,7 @@ export function PhotoUpload({
           className="max-w-3xl p-2 bg-transparent border-none shadow-none"
           showCloseButton={true}
         >
+          <DialogTitle className="sr-only">Aperçu de la photo</DialogTitle>
           <img
             src={preview || ""}
             alt="Aperçu plein écran"
@@ -90,14 +95,27 @@ export function PhotoUpload({
             />
             <button
               type="button"
-              onClick={() => {
-                removeFile(fileId!);
-                onChange(null);
+              onClick={(e) => {
+                e.stopPropagation();
+                openFileDialog();
               }}
-              className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              className="absolute bottom-2 right-2 flex items-center gap-1.5 px-3 h-8 rounded-full bg-black/50 text-white text-xs font-medium hover:bg-black/70 transition-colors"
             >
-              <Icon icon="mdi:close" className="h-4 w-4" />
+              <Icon icon="mdi:image-edit-outline" className="h-3.5 w-3.5" />
+              Changer
             </button>
+            {isNew && (
+              <button
+                type="button"
+                onClick={() => {
+                  removeFile(fileId!);
+                  onChange(null);
+                }}
+                className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              >
+                <Icon icon="mdi:close" className="h-4 w-4" />
+              </button>
+            )}
           </div>
         ) : (
           <div

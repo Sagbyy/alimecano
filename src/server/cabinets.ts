@@ -84,17 +84,53 @@ const updateCabinetSchema = z.object({
   cabinetId: z.number().int().positive(),
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
+  photo: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Image trop volumineuse")
+    .refine((file) => ALLOWED_IMAGE_TYPES.includes(file.type), "Format non autorisé")
+    .optional(),
 });
 
 export const updateCabinet = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof updateCabinetSchema>) =>
-    updateCabinetSchema.parse(data),
-  )
-  .handler(async ({ data }) => {
-    const supabase = getSupabaseServerClient();
+  .inputValidator((data) => {
+    if (!(data instanceof FormData)) throw new Error("Expected FormData");
+    const photoFile = data.get("photo");
+    return updateCabinetSchema.parse({
+      cabinetId: Number(data.get("cabinetId")),
+      name: data.get("name"),
+      description: data.get("description"),
+      photo: photoFile instanceof File && photoFile.size > 0 ? photoFile : undefined,
+    });
+  })
+  .handler(async ({ data }: { data: z.infer<typeof updateCabinetSchema> }) => {
+    const supabase = getSupabaseAdminClient();
+
+    let photoUrl: string | undefined;
+
+    if (data.photo) {
+      const { data: existing } = await supabase
+        .from("cabinet").select("photo_url").eq("id", data.cabinetId).single();
+
+      if (existing?.photo_url) {
+        const old = new URL(existing.photo_url).pathname.split("/cabinets/")[1];
+        if (old) await supabase.storage.from("cabinets").remove([old]);
+      }
+
+      const path = `${Date.now()}-${crypto.randomUUID()}.${data.photo.name.split(".").pop()}`;
+      await supabase.storage.from("cabinets").upload(path, data.photo, {
+        contentType: data.photo.type, upsert: false, cacheControl: "3600",
+      });
+      photoUrl = supabase.storage.from("cabinets").getPublicUrl(path).data.publicUrl;
+    }
+
     const { data: cabinet, error } = await supabase
       .from("cabinet")
-      .update({ name: data.name, description: data.description })
+      .update({
+        name: data.name,
+        description: data.description,
+        updated_at: new Date().toISOString(),
+        ...(photoUrl !== undefined && { photo_url: photoUrl }),
+      })
       .eq("id", data.cabinetId)
       .select()
       .single();
@@ -166,4 +202,56 @@ export const createCabinet = createServerFn({ method: "POST" })
     }
 
     return { ok: true, cabinet };
+  });
+
+export const deleteCabinet = createServerFn({ method: "POST" })
+  .inputValidator((data: z.infer<typeof cabinetIdSchema>) =>
+    cabinetIdSchema.parse(data),
+  )
+  .handler(async ({ data: { cabinetId } }) => {
+    const supabase = getSupabaseAdminClient();
+
+    const { data: cabinet, error: cabinetFetchError } = await supabase
+      .from("cabinet")
+      .select("photo_url, auto_part(id, photo_url)")
+      .eq("id", cabinetId)
+      .single();
+
+    if (cabinetFetchError) {
+      console.error("Error fetching cabinet for deletion:", cabinetFetchError);
+      return { ok: false, error: "Armoire introuvable." };
+    }
+
+    const autoPartPhotoPaths = cabinet.auto_part
+      .map((p) => {
+        if (!p.photo_url) return null;
+        const pathParts = new URL(p.photo_url).pathname.split("/auto-parts/");
+        return pathParts[1] ?? null;
+      })
+      .filter((p): p is string => p !== null);
+
+    if (autoPartPhotoPaths.length > 0) {
+      await supabase.storage.from("auto-parts").remove(autoPartPhotoPaths);
+    }
+
+    await supabase.from("auto_part").delete().eq("cabinet_id", cabinetId);
+
+    if (cabinet.photo_url) {
+      const pathParts = new URL(cabinet.photo_url).pathname.split("/cabinets/");
+      if (pathParts[1]) {
+        await supabase.storage.from("cabinets").remove([pathParts[1]]);
+      }
+    }
+
+    const { error } = await supabase
+      .from("cabinet")
+      .delete()
+      .eq("id", cabinetId);
+
+    if (error) {
+      console.error("Error deleting cabinet:", error);
+      return { ok: false, error: "Erreur lors de la suppression de l'armoire." };
+    }
+
+    return { ok: true };
   });

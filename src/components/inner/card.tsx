@@ -1,5 +1,4 @@
 import { Icon } from "@iconify/react";
-import { AspectRatio } from "#/components/ui/aspect-ratio";
 
 interface InnerCardComponentProps {
   title: string;
@@ -17,12 +16,12 @@ export function InnerCard(props: InnerCardComponentProps) {
   return (
     <div className="text-xs md:text-base flex items-center justify-between gap-2  rounded-xl border-2 bg-white border-gray-200 overflow-hidden">
       {props.photo && (
-        <div className="w-20 shrink-0 p-1">
-          <AspectRatio ratio={1}>
+        <div className="w-20 shrink-0 p-1 flex self-stretch">
+          <div className="w-full h-full aspect-square">
             <img
               src={props.photo}
               alt={props.title}
-              className="h-full w-full rounded-md object-cover"
+              className="w-full h-full rounded-md object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.nextElementSibling?.removeAttribute("hidden");
@@ -37,15 +36,15 @@ export function InnerCard(props: InnerCardComponentProps) {
                 className="h-6 w-6 text-gray-300"
               />
             </div>
-          </AspectRatio>
+          </div>
         </div>
       )}
       <div
         className={`flex items-center justify-between gap-4 flex-1 ${props.photo ? "py-4 pr-4" : "p-4"}`}
       >
-        <div className="min-w-0">
-          <p className="text-base font-semibold truncate">{props.title}</p>
-          <p className="text-neutral-500 truncate">{props.description}</p>
+        <div className="min-w-0 overflow-hidden">
+          <p className="text-base font-semibold">{props.title}</p>
+          <p className="text-neutral-500">{props.description}</p>
           {hasDetails && (
             <div className="flex items-center gap-3 mt-1">
               {props.reference && (

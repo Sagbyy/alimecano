@@ -1,4 +1,5 @@
 import { InnerBack } from "#/components/inner/back";
+import { PhotoUpload } from "#/components/inner/photo-upload";
 import { FieldError } from "#/components/ui/field";
 import { getCabinetById, updateCabinet } from "#/server/cabinets";
 import { useForm } from "@tanstack/react-form";
@@ -13,6 +14,12 @@ const searchSchema = z.object({
 const formSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
+  photo: z
+  .instanceof(File)
+  .refine(
+    (file) => file.type.startsWith("image/"),
+    "Le fichier doit être une image",
+  )
 });
 
 export const Route = createFileRoute("/_authed/edit/cabinet")({
@@ -31,14 +38,18 @@ function RouteComponent() {
     defaultValues: {
       name: cabinet?.name ?? "",
       description: cabinet?.description ?? "",
+      photo: new File([], ""),
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const result = await updateCabinet({
-        data: { cabinetId, ...value },
-      });
+      const formData = new FormData();
+      formData.append("cabinetId", String(cabinetId));
+      formData.append("name", value.name);
+      formData.append("description", value.description);
+      if (value.photo && value.photo.size > 0) formData.append("photo", value.photo);
+      const result = await updateCabinet({ data: formData });
       if (result?.ok) {
         navigate({
           to: "/rooms/$roomId/cabinets/$cabinetId",
@@ -120,6 +131,20 @@ function RouteComponent() {
                 />
                 <FieldError errors={field.state.meta.errors} />
               </div>
+            )}
+          />
+
+          <form.Field
+            name="photo"
+            children={(field) => (
+              <>
+                <PhotoUpload
+                  value={field.state.value}
+                  onChange={(file) => field.handleChange(file ?? new File([], ""))}
+                  initialUrl={cabinet.photo_url}
+                />
+                <FieldError errors={field.state.meta.errors} />
+              </>
             )}
           />
 

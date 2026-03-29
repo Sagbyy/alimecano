@@ -9,11 +9,12 @@ import {
   BreadcrumbSeparator,
 } from "#/components/ui/breadcrumb";
 import { getAutoPartsByCabinetId } from "#/server/auto-parts";
+import { deleteCabinet, getCabinetById } from "#/server/cabinets";
+import { getRoomById } from "#/server/rooms";
+import { Dialog, DialogContent, DialogTitle } from "#/components/ui/dialog";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { getCabinetById } from "#/server/cabinets";
-import { getRoomById } from "#/server/rooms";
 
 export const Route = createFileRoute(
   "/_authed/rooms/$roomId/cabinets/$cabinetId/",
@@ -36,6 +37,8 @@ function RouteComponent() {
   const { autoParts, cabinet, room } = Route.useLoaderData();
   const { roomId, cabinetId } = Route.useParams();
   const [search, setSearch] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = Route.useNavigate();
 
   const filtered = autoParts?.filter((p) =>
@@ -145,6 +148,50 @@ function RouteComponent() {
             ))}
           </ul>
         )}
+        <button
+          type="button"
+          onClick={() => setDeleteDialogOpen(true)}
+          className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl border-2 border-red-200 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
+        >
+          <Icon icon="mdi:trash-can-outline" className="h-4 w-4" />
+          Supprimer l'armoire
+        </button>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="max-w-sm">
+            <DialogTitle>Supprimer l'armoire ?</DialogTitle>
+            <p className="text-sm text-neutral-500 mt-1">
+              Cette action est irréversible. L'armoire, toutes ses pièces et
+              leurs photos seront définitivement supprimées.
+            </p>
+            <div className="flex gap-3 mt-4">
+              <button
+                type="button"
+                onClick={() => setDeleteDialogOpen(false)}
+                className="flex-1 rounded-xl border-2 border-gray-200 py-2.5 text-sm font-medium text-neutral-600"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={async () => {
+                  setIsDeleting(true);
+                  const result = await deleteCabinet({
+                    data: { cabinetId: Number(cabinetId) },
+                  });
+                  if (result.ok) {
+                    navigate({ to: "/rooms/$roomId", params: { roomId } });
+                  }
+                  setIsDeleting(false);
+                }}
+                className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {isDeleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </section>
     </main>
   );
