@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { getCookies, setCookie } from "@tanstack/react-start/server";
 import type { Database } from "../types/database.types";
+import { createClient } from "@supabase/supabase-js";
 
 type CookieToSet = {
   name: string;
@@ -8,10 +9,17 @@ type CookieToSet = {
   options?: Record<string, unknown>;
 };
 
+export function getSupabaseAdminClient() {
+  return createClient<Database>(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!,
+  );
+}
+
 export function getSupabaseServerClient() {
   return createServerClient<Database>(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
+    process.env.SUPABASE_SECRET_KEY!,
     {
       cookies: {
         getAll() {

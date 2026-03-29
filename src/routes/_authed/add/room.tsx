@@ -8,6 +8,12 @@ import { z } from "zod";
 const formSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
+  photo: z
+    .instanceof(File)
+    .refine(
+      (file) => file.type.startsWith("image/"),
+      "Le fichier doit être une image",
+    ),
 });
 
 export const Route = createFileRoute("/_authed/add/room")({
@@ -21,12 +27,18 @@ function RouteComponent() {
     defaultValues: {
       name: "",
       description: "",
+      photo: new File([], ""),
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const result = await createRoom({ data: value });
+      const formData = new FormData();
+      formData.append("name", value.name);
+      formData.append("description", value.description);
+      formData.append("photo", value.photo);
+
+      const result = await createRoom({ data: formData });
       if (result?.ok) {
         navigate({ to: "/" });
       }
@@ -90,6 +102,37 @@ function RouteComponent() {
                 <FieldError errors={field.state.meta.errors} />
               </div>
             )}
+          />
+
+          <form.Field
+            name="photo"
+            children={(field) => {
+              const handleFileChange = (
+                e: React.ChangeEvent<HTMLInputElement>,
+              ) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  field.handleChange(file);
+                }
+              };
+
+              return (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium" htmlFor={field.name}>
+                    Photo
+                  </label>
+                  <input
+                    id={field.name}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    onBlur={field.handleBlur}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:rounded-xl file:border-2 file:border-gray-200 file:bg-white file:px-4 file:py-2.5 file:text-sm file:font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
+                  />
+                  <FieldError errors={field.state.meta.errors} />
+                </div>
+              );
+            }}
           />
 
           <form.Subscribe

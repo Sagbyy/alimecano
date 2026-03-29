@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import "@tanstack/react-start/server-only";
 import { z } from "zod";
-import { getSupabaseServerClient } from "#/utils/supabase";
+import {
+  getSupabaseAdminClient,
+  getSupabaseServerClient,
+} from "#/utils/supabase";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5 Mo
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -99,10 +102,10 @@ export const createRoom = createServerFn({ method: "POST" })
     return parsed;
   })
   .handler(async ({ data }: { data: z.infer<typeof createRoomSchema> }) => {
-    const supabase = getSupabaseServerClient();
+    const supabase = getSupabaseAdminClient();
     const { name, description, photo } = data;
 
-    const photoNamePath = `${Date.now()}-${crypto.randomUUID()}-${photo.name.split(".").pop()}`;
+    const photoNamePath = `${Date.now()}-${crypto.randomUUID()}.${photo.name.split(".").pop()}`;
 
     const { error: photoUploadError } = await supabase.storage
       .from("rooms")
@@ -117,7 +120,7 @@ export const createRoom = createServerFn({ method: "POST" })
     }
 
     const { data: publicUrlData } = supabase.storage
-      .from("avatars")
+      .from("rooms")
       .getPublicUrl(photoNamePath);
 
     const { data: room, error } = await supabase
