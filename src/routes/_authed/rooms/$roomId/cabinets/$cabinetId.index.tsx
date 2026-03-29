@@ -131,7 +131,6 @@ function RouteComponent() {
                     reference={autoPart.reference}
                     location={autoPart.location}
                     price={autoPart.price}
-                    showChevron
                   />
                 </Link>
               </li>

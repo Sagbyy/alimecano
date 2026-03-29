@@ -7,7 +7,6 @@ interface InnerCardComponentProps {
   reference?: string;
   location?: string;
   price?: number | null;
-  showChevron?: boolean;
 }
 
 export function InnerCard(props: InnerCardComponentProps) {
@@ -45,9 +44,6 @@ export function InnerCard(props: InnerCardComponentProps) {
           <span className="bg-sky-100 text-sky-800 text-xs font-medium px-2 py-1 rounded-lg">
             {props.price} €
           </span>
-        )}
-        {props.showChevron && (
-          <Icon icon="mdi:chevron-right" className="h-5 w-5 text-neutral-300" />
         )}
       </div>
     </div>
