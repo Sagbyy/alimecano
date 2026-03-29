@@ -3,6 +3,9 @@ import "@tanstack/react-start/server-only";
 import { z } from "zod";
 import { getSupabaseServerClient } from "#/utils/supabase";
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 5 Mo
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
 const roomIdSchema = z.object({
   roomId: z.number().int().positive(),
 });
@@ -10,6 +13,14 @@ const roomIdSchema = z.object({
 const createRoomSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(1),
+  photo: z
+    .instanceof(File)
+    .refine((file) => file.size > 0, "Fichier vide")
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Image trop volumineuse")
+    .refine(
+      (file) => ALLOWED_IMAGE_TYPES.includes(file.type),
+      "Format non autorisé",
+    ),
 });
 
 type RoomId = z.infer<typeof roomIdSchema>;
@@ -74,14 +85,44 @@ export const updateRoom = createServerFn({ method: "POST" })
   });
 
 export const createRoom = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof createRoomSchema>) =>
-    createRoomSchema.parse(data),
-  )
-  .handler(async ({ data: { name, description } }) => {
+  .inputValidator((data) => {
+    if (!(data instanceof FormData)) {
+      throw new Error("Expected FormData");
+    }
+
+    const parsed = createRoomSchema.parse({
+      name: data.get("name"),
+      description: data.get("description"),
+      photo: data.get("photo"),
+    });
+
+    return parsed;
+  })
+  .handler(async ({ data }: { data: z.infer<typeof createRoomSchema> }) => {
     const supabase = getSupabaseServerClient();
+    const { name, description, photo } = data;
+
+    const photoNamePath = `${Date.now()}-${crypto.randomUUID()}-${photo.name.split(".").pop()}`;
+
+    const { error: photoUploadError } = await supabase.storage
+      .from("rooms")
+      .upload(photoNamePath, photo, {
+        contentType: photo.type,
+        upsert: false,
+        cacheControl: "3600",
+      });
+
+    if (photoUploadError) {
+      throw new Error(`Upload Supabase échoué: ${photoUploadError.message}`);
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(photoNamePath);
+
     const { data: room, error } = await supabase
       .from("room")
-      .insert({ name, description })
+      .insert({ name, description, photo_url: publicUrlData.publicUrl })
       .select()
       .single();
 
