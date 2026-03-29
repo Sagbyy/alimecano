@@ -1,6 +1,6 @@
-import { InnerBack } from "#/components/innner/back";
-import { InnerRow } from "#/components/innner/row";
-import { InnerTags } from "#/components/innner/tags";
+import { InnerBack } from "#/components/inner/back";
+import { InnerRow } from "#/components/inner/row";
+import { InnerTags } from "#/components/inner/tags";
 import {
   Breadcrumb,
   BreadcrumbItem,

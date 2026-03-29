@@ -1,5 +1,5 @@
-import { InnerBack } from "#/components/innner/back";
-import { InnerCard } from "#/components/innner/card";
+import { InnerBack } from "#/components/inner/back";
+import { InnerCard } from "#/components/inner/card";
 import {
   Breadcrumb,
   BreadcrumbItem,

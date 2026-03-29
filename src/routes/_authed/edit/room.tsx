@@ -1,4 +1,4 @@
-import { InnerBack } from "#/components/innner/back";
+import { InnerBack } from "#/components/inner/back";
 import { FieldError } from "#/components/ui/field";
 import { getRoomById, updateRoom } from "#/server/rooms";
 import { useForm } from "@tanstack/react-form";
@@ -63,10 +63,7 @@ function RouteComponent() {
   return (
     <main className="page-wrap px-4 pb-8">
       <section className="mt-8">
-        <InnerBack
-          to="/rooms/$roomId/"
-          params={{ roomId: String(roomId) }}
-        />
+        <InnerBack to="/rooms/$roomId/" params={{ roomId: String(roomId) }} />
 
         <h2 className="text-base font-semibold mt-4">Modifier la salle</h2>
         <p className="text-xs text-neutral-400 mt-0.5">

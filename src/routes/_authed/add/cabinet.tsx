@@ -1,4 +1,4 @@
-import { InnerBack } from "#/components/innner/back";
+import { InnerBack } from "#/components/inner/back";
 import { FieldError } from "#/components/ui/field";
 import { createCabinet } from "#/server/cabinets";
 import { getRooms } from "#/server/rooms";

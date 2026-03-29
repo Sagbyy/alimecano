@@ -1,5 +1,5 @@
-import { InnerActionButton } from "#/components/innner/action-button";
-import { InnerCard } from "#/components/innner/card";
+import { InnerActionButton } from "#/components/inner/action-button";
+import { InnerCard } from "#/components/inner/card";
 import { getRooms } from "#/server/rooms";
 import { createFileRoute, Link } from "@tanstack/react-router";
 

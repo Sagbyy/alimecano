@@ -1,4 +1,4 @@
-import { InnerCard } from "#/components/innner/card";
+import { InnerCard } from "#/components/inner/card";
 import { getAutoParts, searchAutoParts } from "#/server/auto-parts";
 import { Icon } from "@iconify/react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
