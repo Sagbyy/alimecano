@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import "@tanstack/react-start/server-only";
 import { z } from "zod";
 import {
   getSupabaseAdminClient,
